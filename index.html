@@ -48,7 +48,8 @@
         <h3>Shop / Level Up</h3>
         <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
         <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
-        <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button>
+        <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
+        <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button>
     </div>
 
     <script>
@@ -58,10 +59,31 @@
         let num1, num2, correctAnswer;
 
         function generateQuestion() {
-            num1 = Math.floor(Math.random() * 10) + 1;
-            num2 = Math.floor(Math.random() * 10) + 1;
-            correctAnswer = num1 + num2;
-            document.getElementById("question").innerText = `What is ${num1} + ${num2}?`;
+            let operators = ['+', '-', '*', '/'];
+            let op = operators[Math.floor(Math.random() * operators.length)];
+
+            if (op === '+') {
+                num1 = Math.floor(Math.random() * 50) + 10;
+                num2 = Math.floor(Math.random() * 50) + 10;
+                correctAnswer = num1 + num2;
+                document.getElementById("question").innerText = `What is ${num1} + ${num2}?`;
+            } else if (op === '-') {
+                num1 = Math.floor(Math.random() * 50) + 20;
+                num2 = Math.floor(Math.random() * 20) + 1;
+                correctAnswer = num1 - num2;
+                document.getElementById("question").innerText = `What is ${num1} - ${num2}?`;
+            } else if (op === '*') {
+                num1 = Math.floor(Math.random() * 12) + 2;
+                num2 = Math.floor(Math.random() * 12) + 2;
+                correctAnswer = num1 * num2;
+                document.getElementById("question").innerText = `What is ${num1} × ${num2}?`;
+            } else if (op === '/') {
+                num2 = Math.floor(Math.random() * 10) + 2;
+                let multiplier = Math.floor(Math.random() * 10) + 2;
+                num1 = num2 * multiplier;
+                correctAnswer = multiplier;
+                document.getElementById("question").innerText = `What is ${num1} ÷ ${num2}?`;
+            }
         }
 
         function checkAnswer() {
@@ -86,6 +108,7 @@
             else if (currentLevel === "Pro") coins += 100;
             else if (currentLevel === "God") coins += 1000;
             else if (currentLevel === "Hacker") coins += 1000000;
+            else if (currentLevel === "Rat Hacker") coins += 100000000;
             document.getElementById("coins").innerText = coins;
         }
 
