@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Math Money Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            text-align: center;
+            padding: 50px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Math Money Game</h1>
+        <p>Level: <span id="level">Noob</span></p>
+        <p>Coins: <span id="coins">0</span></p>
+        <p>Correct in current level: <span id="correctCount">0</span> / 2</p>
+        
+        <h3 id="question">Loading question...</h3>
+        <input type="number" id="answer" placeholder="Your answer">
+        <br>
+        <button onclick="checkAnswer()">Submit</button>
+
+        <h3>Shop / Level Up</h3>
+        <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
+        <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
+        <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button>
+    </div>
+
+    <script>
+        let coins = 0;
+        let correctCount = 0;
+        let currentLevel = "Noob";
+        let num1, num2, correctAnswer;
+
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * 10) + 1;
+            num2 = Math.floor(Math.random() * 10) + 1;
+            correctAnswer = num1 + num2;
+            document.getElementById("question").innerText = `What is ${num1} + ${num2}?`;
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseInt(document.getElementById("answer").value);
+            if (userAnswer === correctAnswer) {
+                correctCount++;
+                if (correctCount >= 2) {
+                    correctCount = 0;
+                    giveReward();
+                }
+                alert("Correct!");
+            } else {
+                alert("Wrong! Try again.");
+            }
+            document.getElementById("correctCount").innerText = correctCount;
+            document.getElementById("answer").value = "";
+            generateQuestion();
+        }
+
+        function giveReward() {
+            if (currentLevel === "Noob") coins += 5;
+            else if (currentLevel === "Pro") coins += 100;
+            else if (currentLevel === "God") coins += 1000;
+            else if (currentLevel === "Hacker") coins += 1000000;
+            document.getElementById("coins").innerText = coins;
+        }
+
+        function buyLevel(levelName, cost) {
+            if (coins >= cost) {
+                coins -= cost;
+                currentLevel = levelName;
+                document.getElementById("coins").innerText = coins;
+                document.getElementById("level").innerText = currentLevel;
+                alert("You leveled up to " + levelName + "!");
+            } else {
+                alert("Not enough coins!");
+            }
+        }
+
+        generateQuestion();
+    </script>
+
+</body>
+</html>
+   
