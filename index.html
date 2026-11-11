@@ -30,6 +30,23 @@
             padding: 8px;
             font-size: 16px;
         }
+        #robot-container {
+            margin: 15px auto;
+            display: none;
+        }
+        #robot-img {
+            width: 80px;
+            height: 80px;
+            background-color: #b0bec5;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -41,16 +58,26 @@
         <p>Correct in current level: <span id="correctCount">0</span> / 2</p>
         
         <h3 id="question">Loading question...</h3>
+        
+        <!-- Robot and Timer Display -->
+        <div id="robot-container">
+            <div id="robot-img">🤖</div>
+            <p>Robo-is thinking... <span id="countdown">5</span>s</p>
+        </div>
+
         <input type="number" id="answer" placeholder="Your answer">
         <br>
         <button onclick="checkAnswer()">Submit</button>
 
         <h3>Shop / Level Up</h3>
-        <button onclick="buyRobot()">Buy Robo-Solver (10 Coins)</button><br>
+        <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
         <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
         <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
         <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
         <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button>
+        <br>
+        <br>
+        <center>Version 4</center>
     </div>
 
     <script>
@@ -58,6 +85,9 @@
         let correctCount = 0;
         let currentLevel = "Noob";
         let num1, num2, correctAnswer;
+        let robotActive = false;
+        let robotTimer = null;
+        let countdownTimer = null;
 
         function generateQuestion() {
             let operators = ['+', '-', '*', '/'];
@@ -85,6 +115,11 @@
                 correctAnswer = multiplier;
                 document.getElementById("question").innerText = `What is ${num1} ÷ ${num2}?`;
             }
+
+            // If robot is active, trigger the 5-second countdown for the new question
+            if (robotActive) {
+                startRobotCycle();
+            }
         }
 
         function checkAnswer() {
@@ -105,23 +140,46 @@
         }
 
         function buyRobot() {
-            if (coins >= 10) {
-                coins -= 10;
+            if (coins >= 5) {
+                coins -= 5;
                 document.getElementById("coins").innerText = coins;
                 
-                // Automatically count it as a correct answer!
+                robotActive = true;
+                document.getElementById("robot-container").style.display = "block";
+                alert("Beep boop! Robo-Solver activated!");
+                
+                startRobotCycle();
+            } else {
+                alert("Not enough coins for the robot!");
+            }
+        }
+
+        function startRobotCycle() {
+            // Clear any existing timers just in case
+            clearTimeout(robotTimer);
+            clearInterval(countdownTimer);
+
+            let timeLeft = 5;
+            document.getElementById("countdown").innerText = timeLeft;
+
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("countdown").innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                }
+            }, 1000);
+
+            robotTimer = setTimeout(() => {
+                // Automatically count it as a correct answer
                 correctCount++;
                 if (correctCount >= 2) {
                     correctCount = 0;
                     giveReward();
                 }
                 document.getElementById("correctCount").innerText = correctCount;
-                
-                alert("Beep boop! The robot solved the question for you!");
                 generateQuestion();
-            } else {
-                alert("Not enough coins for the robot!");
-            }
+            }, 5000);
         }
 
         function giveReward() {
