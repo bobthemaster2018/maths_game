@@ -46,6 +46,7 @@
         <button onclick="checkAnswer()">Submit</button>
 
         <h3>Shop / Level Up</h3>
+        <button onclick="buyRobot()">Buy Robo-Solver (10 Coins)</button><br>
         <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
         <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
         <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
@@ -101,6 +102,26 @@
             document.getElementById("correctCount").innerText = correctCount;
             document.getElementById("answer").value = "";
             generateQuestion();
+        }
+
+        function buyRobot() {
+            if (coins >= 10) {
+                coins -= 10;
+                document.getElementById("coins").innerText = coins;
+                
+                // Automatically count it as a correct answer!
+                correctCount++;
+                if (correctCount >= 2) {
+                    correctCount = 0;
+                    giveReward();
+                }
+                document.getElementById("correctCount").innerText = correctCount;
+                
+                alert("Beep boop! The robot solved the question for you!");
+                generateQuestion();
+            } else {
+                alert("Not enough coins for the robot!");
+            }
         }
 
         function giveReward() {
