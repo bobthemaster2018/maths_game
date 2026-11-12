@@ -78,7 +78,25 @@
         <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
         <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button><br>
         <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button>
-        <br>
+        
+        <br><br>
+        <button onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
+
+        <!-- Secret Menu -->
+        <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
+            <h4>Secret Level Changer</h4>
+            <select id="secret-level-select" style="padding: 5px; font-size: 14px;">
+                <option value="Noob">Noob</option>
+                <option value="Pro">Pro</option>
+                <option value="God">God</option>
+                <option value="Hacker">Hacker</option>
+                <option value="Rat Hacker">Rat Hacker</option>
+                <option value="Lion Hacker">Lion Hacker</option>
+            </select>
+            <br>
+            <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
+        </div>
+
         <br>
         <center>Version 8</center>
     </div>
@@ -261,6 +279,26 @@
             } else {
                 alert("Not enough coins!");
             }
+        }
+
+        function openSecretMenu() {
+            let pin = prompt("Enter PIN:");
+            if (pin === "2018") {
+                document.getElementById("secret-menu").style.display = "block";
+            } else if (pin !== null) {
+                alert("Incorrect PIN!");
+            }
+        }
+
+        function applySecretLevel() {
+            let selectedLevel = document.getElementById("secret-level-select").value;
+            currentLevel = selectedLevel;
+            correctCount = 0;
+            document.getElementById("level").innerText = currentLevel;
+            document.getElementById("targetCount").innerText = getTargetCount();
+            document.getElementById("correctCount").innerText = correctCount;
+            alert("Level changed to " + currentLevel + "!");
+            document.getElementById("secret-menu").style.display = "none";
         }
 
         generateQuestion();
