@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Money Game v5</title>
+    <title>Math Money Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,7 +72,7 @@
 
         <h3>Shop / Level Up</h3>
         <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
-        <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (5 Coins)</button><br>
+        <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
         <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
         <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
         <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
@@ -80,7 +80,7 @@
         <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button>
         <br>
         <br>
-        <center>Version 5</center>
+        <center>Version 8</center>
     </div>
 
     <script>
@@ -193,8 +193,8 @@
         }
 
         function buyUpgradedRobot() {
-            if (coins >= 5) {
-                coins -= 5;
+            if (coins >= 10) {
+                coins -= 10;
                 document.getElementById("coins").innerText = coins;
                 
                 robotUpgraded = true;
