@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Money Game v4</title>
+    <title>Math Money Game v5</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,17 +52,18 @@
 <body>
 
     <div class="card">
-        <h1>Math Money Game v4</h1>
+        <h1>Math Money Game</h1>
         <p>Level: <span id="level">Noob</span></p>
         <p>Coins: <span id="coins">0</span></p>
-        <p>Correct in current level: <span id="correctCount">0</span> / 2</p>
+        <p>Correct in current level: <span id="correctCount">0</span> / <span id="targetCount">2</span></p>
         
         <h3 id="question">Loading question...</h3>
+        <h3 id="question2" style="display:none; color: #d32f2f;"></h3>
         
         <!-- Robot and Timer Display -->
         <div id="robot-container">
             <div id="robot-img">🤖</div>
-            <p>Robo-is thinking... <span id="countdown">5</span>s</p>
+            <p><span id="robot-status">Robo-is thinking...</span> <span id="countdown">5</span>s</p>
         </div>
 
         <input type="number" id="answer" placeholder="Your answer">
@@ -71,13 +72,15 @@
 
         <h3>Shop / Level Up</h3>
         <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
+        <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (5 Coins)</button><br>
         <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
         <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
         <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
-        <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button>
+        <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button><br>
+        <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button>
         <br>
         <br>
-        <center>Version 4</center>
+        <center>Version 5</center>
     </div>
 
     <script>
@@ -85,9 +88,15 @@
         let correctCount = 0;
         let currentLevel = "Noob";
         let num1, num2, correctAnswer;
+        let num3, num4, correctAnswer2;
         let robotActive = false;
+        let robotUpgraded = false;
         let robotTimer = null;
         let countdownTimer = null;
+
+        function getTargetCount() {
+            return currentLevel === "Lion Hacker" ? 10 : 2;
+        }
 
         function generateQuestion() {
             let operators = ['+', '-', '*', '/'];
@@ -116,7 +125,33 @@
                 document.getElementById("question").innerText = `What is ${num1} ÷ ${num2}?`;
             }
 
-            // If robot is active, trigger the 5-second countdown for the new question
+            if (robotUpgraded) {
+                let op2 = operators[Math.floor(Math.random() * operators.length)];
+                if (op2 === '+') {
+                    num3 = Math.floor(Math.random() * 50) + 10;
+                    num4 = Math.floor(Math.random() * 50) + 10;
+                    correctAnswer2 = num3 + num4;
+                    document.getElementById("question2").innerText = `What is ${num3} + ${num4}?`;
+                } else if (op2 === '-') {
+                    num3 = Math.floor(Math.random() * 50) + 20;
+                    num4 = Math.floor(Math.random() * 20) + 1;
+                    correctAnswer2 = num3 - num4;
+                    document.getElementById("question2").innerText = `What is ${num3} - ${num4}?`;
+                } else if (op2 === '*') {
+                    num3 = Math.floor(Math.random() * 12) + 2;
+                    num4 = Math.floor(Math.random() * 12) + 2;
+                    correctAnswer2 = num3 * num4;
+                    document.getElementById("question2").innerText = `What is ${num3} × ${num4}?`;
+                } else if (op2 === '/') {
+                    num4 = Math.floor(Math.random() * 10) + 2;
+                    let multiplier2 = Math.floor(Math.random() * 10) + 2;
+                    num3 = num4 * multiplier2;
+                    correctAnswer2 = multiplier2;
+                    document.getElementById("question2").innerText = `What is ${num3} ÷ ${num4}?`;
+                }
+                document.getElementById("question2").style.display = "block";
+            }
+
             if (robotActive) {
                 startRobotCycle();
             }
@@ -126,7 +161,8 @@
             let userAnswer = parseInt(document.getElementById("answer").value);
             if (userAnswer === correctAnswer) {
                 correctCount++;
-                if (correctCount >= 2) {
+                let target = getTargetCount();
+                if (correctCount >= target) {
                     correctCount = 0;
                     giveReward();
                 }
@@ -135,6 +171,7 @@
                 alert("Wrong! Try again.");
             }
             document.getElementById("correctCount").innerText = correctCount;
+            document.getElementById("targetCount").innerText = getTargetCount();
             document.getElementById("answer").value = "";
             generateQuestion();
         }
@@ -146,6 +183,7 @@
                 
                 robotActive = true;
                 document.getElementById("robot-container").style.display = "block";
+                document.getElementById("upgrade-btn").style.display = "inline-block";
                 alert("Beep boop! Robo-Solver activated!");
                 
                 startRobotCycle();
@@ -154,12 +192,29 @@
             }
         }
 
+        function buyUpgradedRobot() {
+            if (coins >= 5) {
+                coins -= 5;
+                document.getElementById("coins").innerText = coins;
+                
+                robotUpgraded = true;
+                document.getElementById("robot-img").innerText = "😈";
+                document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
+                document.getElementById("robot-status").innerText = "DESTRUCTION BOT crushing...";
+                document.getElementById("upgrade-btn").style.display = "none";
+                alert("ROBO UPGRADED! He looks mean and is ready to blast two questions at once!");
+                
+                startRobotCycle();
+            } else {
+                alert("Not enough coins to upgrade the robot!");
+            }
+        }
+
         function startRobotCycle() {
-            // Clear any existing timers just in case
             clearTimeout(robotTimer);
             clearInterval(countdownTimer);
 
-            let timeLeft = 5;
+            let timeLeft = robotUpgraded ? 2 : 5;
             document.getElementById("countdown").innerText = timeLeft;
 
             countdownTimer = setInterval(() => {
@@ -171,15 +226,16 @@
             }, 1000);
 
             robotTimer = setTimeout(() => {
-                // Automatically count it as a correct answer
-                correctCount++;
-                if (correctCount >= 2) {
+                correctCount += robotUpgraded ? 2 : 1;
+                let target = getTargetCount();
+                if (correctCount >= target) {
                     correctCount = 0;
                     giveReward();
                 }
                 document.getElementById("correctCount").innerText = correctCount;
+                document.getElementById("targetCount").innerText = target;
                 generateQuestion();
-            }, 5000);
+            }, robotUpgraded ? 2000 : 5000);
         }
 
         function giveReward() {
@@ -188,6 +244,7 @@
             else if (currentLevel === "God") coins += 1000;
             else if (currentLevel === "Hacker") coins += 1000000;
             else if (currentLevel === "Rat Hacker") coins += 100000000;
+            else if (currentLevel === "Lion Hacker") coins += 1000000000;
             document.getElementById("coins").innerText = coins;
         }
 
@@ -195,8 +252,11 @@
             if (coins >= cost) {
                 coins -= cost;
                 currentLevel = levelName;
+                correctCount = 0;
                 document.getElementById("coins").innerText = coins;
                 document.getElementById("level").innerText = currentLevel;
+                document.getElementById("targetCount").innerText = getTargetCount();
+                document.getElementById("correctCount").innerText = correctCount;
                 alert("You leveled up to " + levelName + "!");
             } else {
                 alert("Not enough coins!");
