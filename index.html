@@ -77,7 +77,10 @@
         <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
         <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
         <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button><br>
-        <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button>
+        <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button><br>
+        <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
+        <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
+        <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button>
         
         <br><br>
         <button onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
@@ -92,13 +95,16 @@
                 <option value="Hacker">Hacker</option>
                 <option value="Rat Hacker">Rat Hacker</option>
                 <option value="Lion Hacker">Lion Hacker</option>
+                <option value="Zombie Hacker">Zombie Hacker</option>
+                <option value="Zombie Divine">Zombie Divine</option>
+                <option value="Wow Divine">Wow Divine</option>
             </select>
             <br>
             <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
         </div>
 
         <br>
-        <center>Version 8</center>
+        <center>Version 9</center>
     </div>
 
     <script>
@@ -113,7 +119,10 @@
         let countdownTimer = null;
 
         function getTargetCount() {
-            return currentLevel === "Lion Hacker" ? 10 : 2;
+            if (currentLevel === "Lion Hacker" || currentLevel === "Zombie Hacker" || currentLevel === "Zombie Divine" || currentLevel === "Wow Divine") {
+                return 10;
+            }
+            return 2;
         }
 
         function generateQuestion() {
@@ -263,6 +272,9 @@
             else if (currentLevel === "Hacker") coins += 1000000;
             else if (currentLevel === "Rat Hacker") coins += 100000000;
             else if (currentLevel === "Lion Hacker") coins += 1000000000;
+            else if (currentLevel === "Zombie Hacker") coins += 100000000000;
+            else if (currentLevel === "Zombie Divine") coins += 1000000000000;
+            else if (currentLevel === "Wow Divine") coins += 100000000000000;
             document.getElementById("coins").innerText = coins;
         }
 
