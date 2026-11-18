@@ -49,64 +49,114 @@
             color: white;
             font-weight: bold;
         }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>Math Money Game</h1>
-        <p>Level: <span id="level">Noob</span></p>
-        <p>Coins: <span id="coins">0</span></p>
-        <p>Correct in current level: <span id="correctCount">0</span> / <span id="targetCount">2</span></p>
-        
-        <h3 id="question">Loading question...</h3>
-        <h3 id="question2" style="display:none; color: #d32f2f;"></h3>
-        
-        <!-- Robot and Timer Display -->
-        <div id="robot-container">
-            <div id="robot-img">🤖</div>
-            <p><span id="robot-status">Robo-is thinking...</span> <span id="countdown">5</span>s</p>
+    <!-- MAIN MENU PAGE -->
+    <div id="menu-page" class="page active">
+        <div class="card">
+            <h1>Math Money Game</h1>
+            <p>Welcome! Choose an option below:</p>
+            <button onclick="switchPage('game-page')" style="background-color: #4caf50; color: white; width: 200px;">Play</button><br>
+            <button onclick="switchPage('challenges-page')" style="background-color: #ff9800; color: white; width: 200px;">Challenges</button>
         </div>
+    </div>
 
-        <input type="number" id="answer" placeholder="Your answer">
-        <br>
-        <button onclick="checkAnswer()">Submit</button>
+    <!-- CHALLENGES MENU PAGE -->
+    <div id="challenges-page" class="page">
+        <div class="card">
+            <h1>Challenges</h1>
+            <p>Select a challenge to test your skills:</p>
+            <button onclick="startOneMinuteChallenge()" style="background-color: #2196f3; color: white;">One-Minute Challenge</button><br><br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+        </div>
+    </div>
 
-        <h3>Shop / Level Up</h3>
-        <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
-        <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
-        <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
-        <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
-        <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
-        <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button><br>
-        <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button><br>
-        <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
-        <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
-        <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button>
-        
-        <br><br>
-        <button onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
-
-        <!-- Secret Menu -->
-        <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
-            <h4>Secret Level Changer</h4>
-            <select id="secret-level-select" style="padding: 5px; font-size: 14px;">
-                <option value="Noob">Noob</option>
-                <option value="Pro">Pro</option>
-                <option value="God">God</option>
-                <option value="Hacker">Hacker</option>
-                <option value="Rat Hacker">Rat Hacker</option>
-                <option value="Lion Hacker">Lion Hacker</option>
-                <option value="Zombie Hacker">Zombie Hacker</option>
-                <option value="Zombie Divine">Zombie Divine</option>
-                <option value="Wow Divine">Wow Divine</option>
-            </select>
+    <!-- ONE-MINUTE CHALLENGE PAGE -->
+    <div id="challenge-game-page" class="page">
+        <div class="card">
+            <h1>One-Minute Challenge</h1>
+            <p>Time Left: <span id="challenge-timer">60</span>s</p>
+            <p>Questions Correct: <span id="challenge-correct">0</span> / 10</p>
+            
+            <h3 id="challenge-question">Press Start Timer when ready!</h3>
+            
+            <input type="number" id="challenge-answer" placeholder="Your answer" disabled>
             <br>
-            <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
+            <button id="start-timer-btn" onclick="beginChallengeTimer()" style="background-color: #4caf50; color: white;">Start Timer</button>
+            <button id="challenge-submit-btn" onclick="checkChallengeAnswer()" style="display:none;">Submit</button>
+            
+            <br><br>
+            <button id="challenge-back-btn" onclick="switchPage('challenges-page')">Back to Challenges</button>
         </div>
+    </div>
 
-        <br>
-        <center>Version 9</center>
+    <!-- MAIN GAME PAGE -->
+    <div id="game-page" class="page">
+        <div class="card">
+            <h1>Math Money Game</h1>
+            <p>Level: <span id="level">Noob</span></p>
+            <p>Coins: <span id="coins">0</span></p>
+            <p>Correct in current level: <span id="correctCount">0</span> / <span id="targetCount">2</span></p>
+            
+            <h3 id="question">Loading question...</h3>
+            <h3 id="question2" style="display:none; color: #d32f2f;"></h3>
+            
+            <!-- Robot and Timer Display -->
+            <div id="robot-container">
+                <div id="robot-img">🤖</div>
+                <p><span id="robot-status">Robo-is thinking...</span> <span id="countdown">5</span>s</p>
+            </div>
+
+            <input type="number" id="answer" placeholder="Your answer">
+            <br>
+            <button onclick="checkAnswer()">Submit</button>
+
+            <h3>Shop / Level Up</h3>
+            <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
+            <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
+            <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
+            <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
+            <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
+            <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button>
+            
+            <br><br>
+            <button onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
+
+            <!-- Secret Menu -->
+            <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
+                <h4>Secret Level Changer</h4>
+                <select id="secret-level-select" style="padding: 5px; font-size: 14px;">
+                    <option value="Noob">Noob</option>
+                    <option value="Pro">Pro</option>
+                    <option value="God">God</option>
+                    <option value="Hacker">Hacker</option>
+                    <option value="Rat Hacker">Rat Hacker</option>
+                    <option value="Lion Hacker">Lion Hacker</option>
+                    <option value="Zombie Hacker">Zombie Hacker</option>
+                    <option value="Zombie Divine">Zombie Divine</option>
+                    <option value="Wow Divine">Wow Divine</option>
+                </select>
+                <br>
+                <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
+            </div>
+
+            <br><br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+            <br>
+            <center>Version 11</center>
+        </div>
     </div>
 
     <script>
@@ -119,6 +169,22 @@
         let robotUpgraded = false;
         let robotTimer = null;
         let countdownTimer = null;
+
+        // Challenge variables
+        let challengeCorrectCount = 0;
+        let challengeTimeLeft = 60;
+        let challengeTimerInterval = null;
+        let challengeNum1, challengeNum2, challengeCorrectAnswer;
+
+        function switchPage(pageId) {
+            if (pageId !== 'challenge-game-page') {
+                clearInterval(challengeTimerInterval);
+            }
+            
+            let pages = document.querySelectorAll('.page');
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
 
         function getTargetCount() {
             if (currentLevel === "Lion Hacker" || currentLevel === "Zombie Hacker" || currentLevel === "Zombie Divine" || currentLevel === "Wow Divine") {
@@ -313,6 +379,101 @@
             document.getElementById("correctCount").innerText = correctCount;
             alert("Level changed to " + currentLevel + "!");
             document.getElementById("secret-menu").style.display = "none";
+        }
+
+        // --- Challenge Functions (Easier now!) ---
+        function startOneMinuteChallenge() {
+            challengeCorrectCount = 0;
+            challengeTimeLeft = 60;
+            document.getElementById("challenge-correct").innerText = challengeCorrectCount;
+            document.getElementById("challenge-timer").innerText = challengeTimeLeft;
+            document.getElementById("challenge-question").innerText = "Press Start Timer when ready!";
+            document.getElementById("challenge-answer").value = "";
+            document.getElementById("challenge-answer").disabled = true;
+            document.getElementById("start-timer-btn").style.display = "inline-block";
+            document.getElementById("challenge-submit-btn").style.display = "none";
+            document.getElementById("challenge-back-btn").style.display = "inline-block";
+            
+            switchPage('challenge-game-page');
+        }
+
+        function beginChallengeTimer() {
+            document.getElementById("start-timer-btn").style.display = "none";
+            document.getElementById("challenge-submit-btn").style.display = "inline-block";
+            document.getElementById("challenge-answer").disabled = false;
+            document.getElementById("challenge-answer").focus();
+            
+            generateChallengeQuestion();
+
+            clearInterval(challengeTimerInterval);
+            challengeTimerInterval = setInterval(() => {
+                challengeTimeLeft--;
+                document.getElementById("challenge-timer").innerText = challengeTimeLeft;
+                
+                if (challengeTimeLeft <= 0) {
+                    clearInterval(challengeTimerInterval);
+                    alert("Time's up! Returning to menu.");
+                    switchPage('menu-page');
+                }
+            }, 1000);
+        }
+
+        function generateChallengeQuestion() {
+            // Made much easier: using addition and subtraction with smaller numbers
+            let operators = ['+', '-'];
+            let op = operators[Math.floor(Math.random() * operators.length)];
+
+            if (op === '+') {
+                challengeNum1 = Math.floor(Math.random() * 20) + 1;
+                challengeNum2 = Math.floor(Math.random() * 20) + 1;
+                challengeCorrectAnswer = challengeNum1 + challengeNum2;
+                document.getElementById("challenge-question").innerText = `What is ${challengeNum1} + ${challengeNum2}?`;
+            } else {
+                challengeNum1 = Math.floor(Math.random() * 20) + 10;
+                challengeNum2 = Math.floor(Math.random() * 10) + 1;
+                if (challengeNum1 < challengeNum2) {
+                    let temp = challengeNum1;
+                    challengeNum1 = challengeNum2;
+                    challengeNum2 = temp;
+                }
+                challengeCorrectAnswer = challengeNum1 - challengeNum2;
+                document.getElementById("challenge-question").innerText = `What is ${challengeNum1} - ${challengeNum2}?`;
+            }
+        }
+
+        function checkChallengeAnswer() {
+            let userAnswer = parseInt(document.getElementById("challenge-answer").value);
+            if (userAnswer === challengeCorrectAnswer) {
+                challengeCorrectCount++;
+                document.getElementById("challenge-correct").innerText = challengeCorrectCount;
+                
+                if (challengeCorrectCount >= 10) {
+                    clearInterval(challengeTimerInterval);
+                    document.getElementById("challenge-question").innerText = "You successfully completed the challenge!";
+                    document.getElementById("challenge-answer").style.display = "none";
+                    document.getElementById("challenge-submit-btn").style.display = "none";
+                    document.getElementById("challenge-back-btn").style.display = "none";
+                    
+                    let card = document.querySelector("#challenge-game-page .card");
+                    let winBtn = document.createElement("button");
+                    winBtn.id = "win-menu-btn";
+                    winBtn.innerText = "You Won Go To Menu";
+                    winBtn.style.backgroundColor = "#4caf50";
+                    winBtn.style.color = "white";
+                    winBtn.onclick = function() {
+                        winBtn.remove();
+                        document.getElementById("challenge-answer").style.display = "inline-block";
+                        switchPage('menu-page');
+                    };
+                    card.appendChild(winBtn);
+                    return;
+                }
+                alert("Correct!");
+            } else {
+                alert("Wrong! Try again.");
+            }
+            document.getElementById("challenge-answer").value = "";
+            generateChallengeQuestion();
         }
 
         generateQuestion();
