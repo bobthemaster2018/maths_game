@@ -21,6 +21,8 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             max-width: 100%;
             box-sizing: border-box;
+            position: relative;
+            z-index: 2;
         }
         button {
             padding: 10px 20px;
@@ -55,12 +57,34 @@
         .page.active {
             display: block;
         }
+        /* Cartoon Player Background for Main Menu */
+        #menu-page {
+            position: relative;
+            min-height: 400px;
+            display: none;
+        }
+        #menu-page.active {
+            display: block;
+        }
+        #cartoon-player-bg {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 70px;
+            z-index: 1;
+            user-select: none;
+            opacity: 0.85;
+        }
     </style>
 </head>
 <body>
 
     <!-- MAIN MENU PAGE -->
     <div id="menu-page" class="page active">
+        <!-- Cartoon Player playing the game (stationary) -->
+        <div id="cartoon-player-bg" title="Cartoon Player">🧑‍💻🎮</div>
+        
         <div class="card">
             <h1>Math Money Game</h1>
             <p>Welcome! Choose an option below:</p>
@@ -88,7 +112,8 @@
         <div class="card">
             <h1>Challenges</h1>
             <p>Select a challenge to test your skills:</p>
-            <button onclick="startOneMinuteChallenge()" style="background-color: #2196f3; color: white;">Five-Minute Challenge</button><br><br>
+            <button onclick="startFiveMinuteChallenge()" style="background-color: #2196f3; color: white;">Five-Minute Challenge</button><br><br>
+            <button onclick="startThreeMinuteChallenge()" style="background-color: #e91e63; color: white;">3-Min Challenge (Cost: 1,000,000,000,000,000 Coins)</button><br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
         </div>
     </div>
@@ -177,7 +202,7 @@
             <br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
             <br>
-            <center>Version 17</center>
+            <center>Version 19</center>
         </div>
     </div>
 
@@ -194,7 +219,7 @@
 
         // Challenge variables
         let challengeCorrectCount = 0;
-        let challengeTimeLeft = 300; // 5 minutes in seconds
+        let challengeTimeLeft = 300; // default 5 minutes in seconds
         let challengeTimerInterval = null;
         let challengeNum1, challengeNum2, challengeCorrectAnswer;
 
@@ -433,7 +458,7 @@
         }
 
         // --- Challenge Functions ---
-        function startOneMinuteChallenge() {
+        function startFiveMinuteChallenge() {
             challengeCorrectCount = 0;
             challengeTimeLeft = 300;
             document.getElementById("challenge-correct").innerText = challengeCorrectCount;
@@ -446,6 +471,29 @@
             document.getElementById("challenge-back-btn").style.display = "inline-block";
             
             switchPage('challenge-game-page');
+        }
+
+        function startThreeMinuteChallenge() {
+            let challengeCost = 1000000000000000; // 1 quadrillion
+            if (coins >= challengeCost) {
+                coins -= challengeCost;
+                document.getElementById("coins").innerText = coins;
+                
+                challengeCorrectCount = 0;
+                challengeTimeLeft = 180; // 3 minutes in seconds
+                document.getElementById("challenge-correct").innerText = challengeCorrectCount;
+                updateTimerDisplay();
+                document.getElementById("challenge-question").innerText = "Press Start Timer when ready!";
+                document.getElementById("challenge-answer").value = "";
+                document.getElementById("challenge-answer").disabled = true;
+                document.getElementById("start-timer-btn").style.display = "inline-block";
+                document.getElementById("challenge-submit-btn").style.display = "none";
+                document.getElementById("challenge-back-btn").style.display = "inline-block";
+                
+                switchPage('challenge-game-page');
+            } else {
+                alert("Not enough coins! You need 1,000,000,000,000,000 coins to play the 3-Min Challenge.");
+            }
         }
 
         function updateTimerDisplay() {
