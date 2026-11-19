@@ -154,7 +154,7 @@
 
             <!-- Secret Menu -->
             <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
-                <h4>Secret Level Changer</h4>
+                <h4>Secret Level & Coin Changer</h4>
                 <select id="secret-level-select" style="padding: 5px; font-size: 14px;">
                     <option value="Noob">Noob</option>
                     <option value="Pro">Pro</option>
@@ -168,12 +168,16 @@
                 </select>
                 <br>
                 <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
+                <br><br>
+                <input type="number" id="secret-coins-input" placeholder="Set coins amount" style="padding: 5px; font-size: 14px; width: 140px;">
+                <br>
+                <button onclick="applySecretCoins()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Set Coins</button>
             </div>
 
             <br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
             <br>
-            <center>Version 12</center>
+            <center>Version 17</center>
         </div>
     </div>
 
@@ -212,7 +216,6 @@
                 robotShopDiv.style.display = "block";
             } else {
                 robotShopDiv.style.display = "none";
-                // Turn off robot if cheats are disabled
                 robotActive = false;
                 robotUpgraded = false;
                 document.getElementById("robot-container").style.display = "none";
@@ -414,6 +417,19 @@
             document.getElementById("correctCount").innerText = correctCount;
             alert("Level changed to " + currentLevel + "!");
             document.getElementById("secret-menu").style.display = "none";
+        }
+
+        function applySecretCoins() {
+            let customCoins = parseInt(document.getElementById("secret-coins-input").value);
+            if (!isNaN(customCoins)) {
+                coins = customCoins;
+                document.getElementById("coins").innerText = coins;
+                alert("Coins updated to " + coins + "!");
+                document.getElementById("secret-menu").style.display = "none";
+                document.getElementById("secret-coins-input").value = "";
+            } else {
+                alert("Please enter a valid number for coins!");
+            }
         }
 
         // --- Challenge Functions ---
