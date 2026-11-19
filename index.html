@@ -88,16 +88,16 @@
         <div class="card">
             <h1>Challenges</h1>
             <p>Select a challenge to test your skills:</p>
-            <button onclick="startOneMinuteChallenge()" style="background-color: #2196f3; color: white;">One-Minute Challenge</button><br><br>
+            <button onclick="startOneMinuteChallenge()" style="background-color: #2196f3; color: white;">Five-Minute Challenge</button><br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
         </div>
     </div>
 
-    <!-- ONE-MINUTE CHALLENGE PAGE -->
+    <!-- CHALLENGE GAME PAGE -->
     <div id="challenge-game-page" class="page">
         <div class="card">
-            <h1>One-Minute Challenge</h1>
-            <p>Time Left: <span id="challenge-timer">60</span>s</p>
+            <h1>Challenge</h1>
+            <p>Time Left: <span id="challenge-timer">5:00</span></p>
             <p>Questions Correct: <span id="challenge-correct">0</span> / 10</p>
             
             <h3 id="challenge-question">Press Start Timer when ready!</h3>
@@ -194,7 +194,7 @@
 
         // Challenge variables
         let challengeCorrectCount = 0;
-        let challengeTimeLeft = 60;
+        let challengeTimeLeft = 300; // 5 minutes in seconds
         let challengeTimerInterval = null;
         let challengeNum1, challengeNum2, challengeCorrectAnswer;
 
@@ -435,9 +435,9 @@
         // --- Challenge Functions ---
         function startOneMinuteChallenge() {
             challengeCorrectCount = 0;
-            challengeTimeLeft = 60;
+            challengeTimeLeft = 300;
             document.getElementById("challenge-correct").innerText = challengeCorrectCount;
-            document.getElementById("challenge-timer").innerText = challengeTimeLeft;
+            updateTimerDisplay();
             document.getElementById("challenge-question").innerText = "Press Start Timer when ready!";
             document.getElementById("challenge-answer").value = "";
             document.getElementById("challenge-answer").disabled = true;
@@ -446,6 +446,15 @@
             document.getElementById("challenge-back-btn").style.display = "inline-block";
             
             switchPage('challenge-game-page');
+        }
+
+        function updateTimerDisplay() {
+            let minutes = Math.floor(challengeTimeLeft / 60);
+            let seconds = challengeTimeLeft % 60;
+            if (seconds < 10) {
+                seconds = "0" + seconds;
+            }
+            document.getElementById("challenge-timer").innerText = minutes + ":" + seconds;
         }
 
         function beginChallengeTimer() {
@@ -459,7 +468,7 @@
             clearInterval(challengeTimerInterval);
             challengeTimerInterval = setInterval(() => {
                 challengeTimeLeft--;
-                document.getElementById("challenge-timer").innerText = challengeTimeLeft;
+                updateTimerDisplay();
                 
                 if (challengeTimeLeft <= 0) {
                     clearInterval(challengeTimerInterval);
