@@ -161,7 +161,7 @@
             <h3>Shop / Level Up</h3>
             <!-- Robot shop buttons wrapped in a div so they can hide/show -->
             <div id="robot-shop-buttons" style="display: none;">
-                <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
+                <button id="buy-robot-btn" onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
                 <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
             </div>
 
@@ -202,7 +202,7 @@
             <br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
             <br>
-            <center>Version 19</center>
+            <center>Version 20</center>
         </div>
     </div>
 
@@ -212,8 +212,8 @@
         let currentLevel = "Noob";
         let num1, num2, correctAnswer;
         let num3, num4, correctAnswer2;
-        let robotActive = false;
-        let robotUpgraded = false;
+        let robotCount = 0;
+        let robotUpgradeCount = 0;
         let robotTimer = null;
         let countdownTimer = null;
 
@@ -241,8 +241,12 @@
                 robotShopDiv.style.display = "block";
             } else {
                 robotShopDiv.style.display = "none";
-                robotActive = false;
-                robotUpgraded = false;
+                robotCount = 0;
+                robotUpgradeCount = 0;
+                document.getElementById("buy-robot-btn").innerText = "Buy Robo-Solver (5 Coins)";
+                document.getElementById("buy-robot-btn").disabled = false;
+                document.getElementById("upgrade-btn").innerText = "Upgrade Robot (10 Coins)";
+                document.getElementById("upgrade-btn").style.display = "none";
                 document.getElementById("robot-container").style.display = "none";
                 clearTimeout(robotTimer);
                 clearInterval(countdownTimer);
@@ -283,7 +287,7 @@
                 document.getElementById("question").innerText = `What is ${num1} ÷ ${num2}?`;
             }
 
-            if (robotUpgraded) {
+            if (robotUpgradeCount > 0) {
                 let op2 = operators[Math.floor(Math.random() * operators.length)];
                 if (op2 === '+') {
                     num3 = Math.floor(Math.random() * 50) + 10;
@@ -310,7 +314,7 @@
                 document.getElementById("question2").style.display = "block";
             }
 
-            if (robotActive) {
+            if (robotCount > 0) {
                 startRobotCycle();
             }
         }
@@ -335,14 +339,24 @@
         }
 
         function buyRobot() {
+            if (robotCount >= 5) return;
+
             if (coins >= 5) {
                 coins -= 5;
+                robotCount++;
                 document.getElementById("coins").innerText = coins;
                 
-                robotActive = true;
                 document.getElementById("robot-container").style.display = "block";
                 document.getElementById("upgrade-btn").style.display = "inline-block";
-                alert("Beep boop! Robo-Solver activated!");
+                
+                if (robotCount >= 5) {
+                    document.getElementById("buy-robot-btn").innerText = "Max Robots";
+                    document.getElementById("buy-robot-btn").disabled = true;
+                    alert("Beep boop! Max robots reached (5/5)!");
+                } else {
+                    document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
+                    alert("Beep boop! Robo-Solver activated! Total robots: " + robotCount);
+                }
                 
                 startRobotCycle();
             } else {
@@ -351,16 +365,25 @@
         }
 
         function buyUpgradedRobot() {
+            if (robotUpgradeCount >= 5) return;
+
             if (coins >= 10) {
                 coins -= 10;
+                robotUpgradeCount++;
                 document.getElementById("coins").innerText = coins;
                 
-                robotUpgraded = true;
                 document.getElementById("robot-img").innerText = "😈";
                 document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
-                document.getElementById("robot-status").innerText = "DESTRUCTION BOT crushing...";
-                document.getElementById("upgrade-btn").style.display = "none";
-                alert("ROBO UPGRADED! He looks mean and is ready to blast two questions at once!");
+                document.getElementById("robot-status").innerText = `DESTRUCTION BOT level ${robotUpgradeCount} crushing...`;
+                
+                if (robotUpgradeCount >= 5) {
+                    document.getElementById("upgrade-btn").innerText = "Max Upgrades";
+                    document.getElementById("upgrade-btn").disabled = true;
+                    alert("MAX UPGRADES REACHED! (5/5)");
+                } else {
+                    document.getElementById("upgrade-btn").innerText = `Upgrade Robot (${robotUpgradeCount}/5) (10 Coins)`;
+                    alert("ROBO UPGRADED! Upgrade level: " + robotUpgradeCount);
+                }
                 
                 startRobotCycle();
             } else {
@@ -372,7 +395,10 @@
             clearTimeout(robotTimer);
             clearInterval(countdownTimer);
 
-            let timeLeft = robotUpgraded ? 2 : 5;
+            let speedBonus = Math.max(1, 6 - robotUpgradeCount);
+            let powerBonus = robotCount + robotUpgradeCount;
+
+            let timeLeft = speedBonus;
             document.getElementById("countdown").innerText = timeLeft;
 
             countdownTimer = setInterval(() => {
@@ -384,7 +410,7 @@
             }, 1000);
 
             robotTimer = setTimeout(() => {
-                correctCount += robotUpgraded ? 2 : 1;
+                correctCount += powerBonus;
                 let target = getTargetCount();
                 if (correctCount >= target) {
                     correctCount = 0;
@@ -393,7 +419,7 @@
                 document.getElementById("correctCount").innerText = correctCount;
                 document.getElementById("targetCount").innerText = target;
                 generateQuestion();
-            }, robotUpgraded ? 2000 : 5000);
+            }, speedBonus * 1000);
         }
 
         function giveReward() {
