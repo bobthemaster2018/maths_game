@@ -144,6 +144,7 @@
             <p>Level: <span id="level">Noob</span></p>
             <p>Coins: <span id="coins">0</span></p>
             <p>Correct in current level: <span id="correctCount">0</span> / <span id="targetCount">2</span></p>
+            <p id="secret-robot-status" style="color: #e91e63; font-weight: bold; display: none;">Secret Robot Active! Time Left: <span id="secret-robot-timer">600</span>s</p>
             
             <h3 id="question">Loading question...</h3>
             <h3 id="question2" style="display:none; color: #d32f2f;"></h3>
@@ -161,7 +162,7 @@
             <h3>Shop / Level Up</h3>
             <!-- Robot shop buttons wrapped in a div so they can hide/show -->
             <div id="robot-shop-buttons" style="display: none;">
-                <button id="buy-robot-btn" onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
+                <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
                 <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
             </div>
 
@@ -197,6 +198,8 @@
                 <input type="number" id="secret-coins-input" placeholder="Set coins amount" style="padding: 5px; font-size: 14px; width: 140px;">
                 <br>
                 <button onclick="applySecretCoins()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Set Coins</button>
+                <br><br>
+                <button onclick="spawnSecretRobot()" style="padding: 5px 10px; font-size: 14px; background-color: #e91e63; color: white;">Spawn Secret Robot Now</button>
             </div>
 
             <br><br>
@@ -212,10 +215,16 @@
         let currentLevel = "Noob";
         let num1, num2, correctAnswer;
         let num3, num4, correctAnswer2;
-        let robotCount = 0;
-        let robotUpgradeCount = 0;
+        let robotActive = false;
+        let robotUpgraded = false;
         let robotTimer = null;
         let countdownTimer = null;
+
+        // Secret Robot variables
+        let secretRobotActive = false;
+        let secretRobotInterval = null;
+        let secretRobotCountdownInterval = null;
+        let secretRobotTimeLeft = 600;
 
         // Challenge variables
         let challengeCorrectCount = 0;
@@ -241,12 +250,8 @@
                 robotShopDiv.style.display = "block";
             } else {
                 robotShopDiv.style.display = "none";
-                robotCount = 0;
-                robotUpgradeCount = 0;
-                document.getElementById("buy-robot-btn").innerText = "Buy Robo-Solver (5 Coins)";
-                document.getElementById("buy-robot-btn").disabled = false;
-                document.getElementById("upgrade-btn").innerText = "Upgrade Robot (10 Coins)";
-                document.getElementById("upgrade-btn").style.display = "none";
+                robotActive = false;
+                robotUpgraded = false;
                 document.getElementById("robot-container").style.display = "none";
                 clearTimeout(robotTimer);
                 clearInterval(countdownTimer);
@@ -287,7 +292,7 @@
                 document.getElementById("question").innerText = `What is ${num1} ÷ ${num2}?`;
             }
 
-            if (robotUpgradeCount > 0) {
+            if (robotUpgraded) {
                 let op2 = operators[Math.floor(Math.random() * operators.length)];
                 if (op2 === '+') {
                     num3 = Math.floor(Math.random() * 50) + 10;
@@ -314,7 +319,7 @@
                 document.getElementById("question2").style.display = "block";
             }
 
-            if (robotCount > 0) {
+            if (robotActive) {
                 startRobotCycle();
             }
         }
@@ -339,24 +344,14 @@
         }
 
         function buyRobot() {
-            if (robotCount >= 5) return;
-
             if (coins >= 5) {
                 coins -= 5;
-                robotCount++;
                 document.getElementById("coins").innerText = coins;
                 
+                robotActive = true;
                 document.getElementById("robot-container").style.display = "block";
                 document.getElementById("upgrade-btn").style.display = "inline-block";
-                
-                if (robotCount >= 5) {
-                    document.getElementById("buy-robot-btn").innerText = "Max Robots";
-                    document.getElementById("buy-robot-btn").disabled = true;
-                    alert("Beep boop! Max robots reached (5/5)!");
-                } else {
-                    document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
-                    alert("Beep boop! Robo-Solver activated! Total robots: " + robotCount);
-                }
+                alert("Beep boop! Robo-Solver activated!");
                 
                 startRobotCycle();
             } else {
@@ -365,25 +360,16 @@
         }
 
         function buyUpgradedRobot() {
-            if (robotUpgradeCount >= 5) return;
-
             if (coins >= 10) {
                 coins -= 10;
-                robotUpgradeCount++;
                 document.getElementById("coins").innerText = coins;
                 
+                robotUpgraded = true;
                 document.getElementById("robot-img").innerText = "😈";
                 document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
-                document.getElementById("robot-status").innerText = `DESTRUCTION BOT level ${robotUpgradeCount} crushing...`;
-                
-                if (robotUpgradeCount >= 5) {
-                    document.getElementById("upgrade-btn").innerText = "Max Upgrades";
-                    document.getElementById("upgrade-btn").disabled = true;
-                    alert("MAX UPGRADES REACHED! (5/5)");
-                } else {
-                    document.getElementById("upgrade-btn").innerText = `Upgrade Robot (${robotUpgradeCount}/5) (10 Coins)`;
-                    alert("ROBO UPGRADED! Upgrade level: " + robotUpgradeCount);
-                }
+                document.getElementById("robot-status").innerText = "DESTRUCTION BOT crushing...";
+                document.getElementById("upgrade-btn").style.display = "none";
+                alert("ROBO UPGRADED! He looks mean and is ready to blast two questions at once!");
                 
                 startRobotCycle();
             } else {
@@ -395,10 +381,7 @@
             clearTimeout(robotTimer);
             clearInterval(countdownTimer);
 
-            let speedBonus = Math.max(1, 6 - robotUpgradeCount);
-            let powerBonus = robotCount + robotUpgradeCount;
-
-            let timeLeft = speedBonus;
+            let timeLeft = robotUpgraded ? 2 : 5;
             document.getElementById("countdown").innerText = timeLeft;
 
             countdownTimer = setInterval(() => {
@@ -410,7 +393,7 @@
             }, 1000);
 
             robotTimer = setTimeout(() => {
-                correctCount += powerBonus;
+                correctCount += robotUpgraded ? 2 : 1;
                 let target = getTargetCount();
                 if (correctCount >= target) {
                     correctCount = 0;
@@ -419,7 +402,7 @@
                 document.getElementById("correctCount").innerText = correctCount;
                 document.getElementById("targetCount").innerText = target;
                 generateQuestion();
-            }, speedBonus * 1000);
+            }, robotUpgraded ? 2000 : 5000);
         }
 
         function giveReward() {
@@ -482,6 +465,50 @@
                 alert("Please enter a valid number for coins!");
             }
         }
+
+        // --- Secret Robot Spawner Logic ---
+        function spawnSecretRobot() {
+            if (secretRobotActive) {
+                alert("A secret robot is already active!");
+                return;
+            }
+
+            secretRobotActive = true;
+            secretRobotTimeLeft = 600; // 10 minutes in seconds
+            document.getElementById("secret-robot-status").style.display = "block";
+            document.getElementById("secret-robot-timer").innerText = secretRobotTimeLeft;
+            alert("A secret robot has spawned! It will generate 100,000,000 dollars per second for 10 minutes!");
+            document.getElementById("secret-menu").style.display = "none";
+
+            // Add 100,000,000 coins every second
+            secretRobotInterval = setInterval(() => {
+                coins += 100000000;
+                document.getElementById("coins").innerText = coins;
+            }, 1000);
+
+            // Countdown timer for the 10-minute duration
+            secretRobotCountdownInterval = setInterval(() => {
+                secretRobotTimeLeft--;
+                document.getElementById("secret-robot-timer").innerText = secretRobotTimeLeft;
+
+                if (secretRobotTimeLeft <= 0) {
+                    clearInterval(secretRobotInterval);
+                    clearInterval(secretRobotCountdownInterval);
+                    secretRobotActive = false;
+                    document.getElementById("secret-robot-status").style.display = "none";
+                    alert("The secret robot's 10 minutes are up and it has left!");
+                }
+            }, 1000);
+        }
+
+        // Automatic 10-minute spawner check (90% chance every 10 minutes)
+        setInterval(() => {
+            let chance = Math.random();
+            if (chance < 0.90 && !secretRobotActive) {
+                alert("A secret robot has spawned! Go check it out!");
+                spawnSecretRobot();
+            }
+        }, 600000); // 600,000 ms = 10 minutes
 
         // --- Challenge Functions ---
         function startFiveMinuteChallenge() {
