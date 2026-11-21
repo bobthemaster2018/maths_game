@@ -57,41 +57,90 @@
         .page.active {
             display: block;
         }
-        /* Cartoon Player Background for Main Menu */
+
+        /* Minecraft Style Menu Background with Sitting Player */
         #menu-page {
-            position: relative;
-            min-height: 400px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #2b2b2b;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px);
+            background-size: 32px 32px;
             display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
         }
         #menu-page.active {
-            display: block;
+            display: flex;
         }
-        #cartoon-player-bg {
+        .minecraft-menu-container {
+            text-align: center;
+            width: 400px;
+            max-width: 90%;
+            z-index: 2;
+            margin-bottom: 120px;
+        }
+        .minecraft-title {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 4px 4px #000000;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+        .minecraft-btn {
+            background-color: #727272;
+            color: #ffffff;
+            border: 3px solid #1f1f1f;
+            border-top-color: #a8a8a8;
+            border-left-color: #a8a8a8;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.2);
+            text-shadow: 2px 2px #000000;
+        }
+        .minecraft-btn:hover {
+            background-color: #8a8a8a;
+            border-color: #3b3b3b;
+            border-top-color: #c6c6c6;
+            border-left-color: #c6c6c6;
+            color: #ffff55;
+        }
+
+        /* Much Bigger Sitting Player Character */
+        #sitting-player {
             position: absolute;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 70px;
+            font-size: 160px;
             z-index: 1;
             user-select: none;
-            opacity: 0.85;
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6));
         }
     </style>
 </head>
 <body>
 
-    <!-- MAIN MENU PAGE -->
+    <!-- MAIN MENU PAGE (Minecraft Style with Huge Sitting Player) -->
     <div id="menu-page" class="page active">
-        <!-- Cartoon Player playing the game (stationary) -->
-        <div id="cartoon-player-bg" title="Cartoon Player">🧑‍💻🎮</div>
-        
-        <div class="card">
-            <h1>Math Money Game</h1>
-            <p>Welcome! Choose an option below:</p>
-            <button onclick="switchPage('game-page')" style="background-color: #4caf50; color: white; width: 200px;">Play</button><br>
-            <button onclick="switchPage('challenges-page')" style="background-color: #ff9800; color: white; width: 200px;">Challenges</button><br>
-            <button onclick="switchPage('settings-page')" style="background-color: #607d8b; color: white; width: 200px;">Settings</button>
+        <div class="minecraft-menu-container">
+            <div class="minecraft-title">Math Money Game</div>
+            <button class="minecraft-btn" onclick="switchPage('game-page')">Play Game</button>
+            <button class="minecraft-btn" onclick="switchPage('challenges-page')">Challenges</button>
+            <button class="minecraft-btn" onclick="switchPage('settings-page')">Settings</button>
         </div>
+        <div id="sitting-player" title="Huge Sitting Player Playing Game">🧎🎮💻</div>
     </div>
 
     <!-- SETTINGS PAGE -->
@@ -162,7 +211,7 @@
             <h3>Shop / Level Up</h3>
             <!-- Robot shop buttons wrapped in a div so they can hide/show -->
             <div id="robot-shop-buttons" style="display: none;">
-                <button onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
+                <button id="buy-robot-btn" onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
                 <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
             </div>
 
@@ -217,6 +266,8 @@
         let num3, num4, correctAnswer2;
         let robotActive = false;
         let robotUpgraded = false;
+        let robotCount = 0;
+        let robotUpgradeLevel = 0;
         let robotTimer = null;
         let countdownTimer = null;
 
@@ -252,6 +303,12 @@
                 robotShopDiv.style.display = "none";
                 robotActive = false;
                 robotUpgraded = false;
+                robotCount = 0;
+                robotUpgradeLevel = 0;
+                document.getElementById("buy-robot-btn").innerText = "Buy Robo-Solver (5 Coins)";
+                document.getElementById("buy-robot-btn").disabled = false;
+                document.getElementById("upgrade-btn").innerText = "Upgrade Robot (10 Coins)";
+                document.getElementById("upgrade-btn").disabled = false;
                 document.getElementById("robot-container").style.display = "none";
                 clearTimeout(robotTimer);
                 clearInterval(countdownTimer);
@@ -344,15 +401,28 @@
         }
 
         function buyRobot() {
+            if (robotCount >= 5) {
+                alert("Max Robots Reached!");
+                return;
+            }
+
             if (coins >= 5) {
                 coins -= 5;
+                robotCount++;
                 document.getElementById("coins").innerText = coins;
                 
                 robotActive = true;
                 document.getElementById("robot-container").style.display = "block";
-                document.getElementById("upgrade-btn").style.display = "inline-block";
-                alert("Beep boop! Robo-Solver activated!");
                 
+                if (robotCount < 5) {
+                    document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
+                } else {
+                    document.getElementById("buy-robot-btn").innerText = "Max Robots Reached";
+                    document.getElementById("buy-robot-btn").disabled = true;
+                    document.getElementById("upgrade-btn").style.display = "inline-block";
+                }
+
+                alert("Beep boop! Robo-Solver activated! (" + robotCount + "/5)");
                 startRobotCycle();
             } else {
                 alert("Not enough coins for the robot!");
@@ -360,17 +430,30 @@
         }
 
         function buyUpgradedRobot() {
+            if (robotUpgradeLevel >= 5) {
+                alert("Max Upgrade Reached!");
+                return;
+            }
+
             if (coins >= 10) {
                 coins -= 10;
+                robotUpgradeLevel++;
                 document.getElementById("coins").innerText = coins;
                 
                 robotUpgraded = true;
                 document.getElementById("robot-img").innerText = "😈";
                 document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
-                document.getElementById("robot-status").innerText = "DESTRUCTION BOT crushing...";
-                document.getElementById("upgrade-btn").style.display = "none";
-                alert("ROBO UPGRADED! He looks mean and is ready to blast two questions at once!");
+                document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/5) crushing...`;
                 
+                let upgradeBtn = document.getElementById("upgrade-btn");
+                if (robotUpgradeLevel < 5) {
+                    upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/5) (10 Coins)`;
+                } else {
+                    upgradeBtn.innerText = "Max Upgrade Reached";
+                    upgradeBtn.disabled = true;
+                }
+
+                alert(`ROBO UPGRADED! Level ${robotUpgradeLevel}/5`);
                 startRobotCycle();
             } else {
                 alert("Not enough coins to upgrade the robot!");
@@ -381,7 +464,8 @@
             clearTimeout(robotTimer);
             clearInterval(countdownTimer);
 
-            let timeLeft = robotUpgraded ? 2 : 5;
+            let timeLeft = robotUpgraded ? (6 - robotUpgradeLevel) : 5;
+            if (timeLeft < 1) timeLeft = 1;
             document.getElementById("countdown").innerText = timeLeft;
 
             countdownTimer = setInterval(() => {
@@ -392,8 +476,11 @@
                 }
             }, 1000);
 
+            let speed = robotUpgraded ? (2000 - (robotUpgradeLevel * 200)) : 5000;
+            if (speed < 500) speed = 500;
+
             robotTimer = setTimeout(() => {
-                correctCount += robotUpgraded ? 2 : 1;
+                correctCount += robotUpgraded ? (1 + robotUpgradeLevel) : 1;
                 let target = getTargetCount();
                 if (correctCount >= target) {
                     correctCount = 0;
@@ -402,7 +489,7 @@
                 document.getElementById("correctCount").innerText = correctCount;
                 document.getElementById("targetCount").innerText = target;
                 generateQuestion();
-            }, robotUpgraded ? 2000 : 5000);
+            }, speed);
         }
 
         function giveReward() {
