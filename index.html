@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Money Game</title>
-    <!-- Supabase JS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS Library via ESM -->
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        window.createClient = createClient;
+    </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
     <style>
         body {
@@ -132,7 +135,7 @@
 </head>
 <body>
 
-    <!-- MAIN MENU PAGE (Starts active now so guests can play right away) -->
+    <!-- MAIN MENU PAGE -->
     <div id="menu-page" class="page active">
         <div class="minecraft-menu-container">
             <div class="minecraft-title">Math Money Game</div>
@@ -275,7 +278,12 @@
         const SUPABASE_URL = 'https://iksvxnqcfxpumcmkdqua.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_qaPdPXUWeVj9TH57pcGKrA_A9fi-aDt';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase = null;
+        try {
+            supabase = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error("Supabase failed to initialize:", e);
+        }
 
         let currentUser = null;
         let coins = 0;
@@ -301,6 +309,7 @@
         let challengeNum1, challengeNum2, challengeCorrectAnswer;
 
         async function signUp() {
+            if (!supabase) return;
             let username = document.getElementById("username").value;
             let password = document.getElementById("password").value;
             if (!username || !password) {
@@ -317,6 +326,7 @@
         }
 
         async function signIn() {
+            if (!supabase) return;
             let username = document.getElementById("username").value;
             let password = document.getElementById("password").value;
             if (!username || !password) {
@@ -336,13 +346,16 @@
         }
 
         async function signOut() {
-            await supabase.auth.signOut();
+            if (supabase) {
+                await supabase.auth.signOut();
+            }
             currentUser = null;
             alert("Signed out!");
             switchPage('menu-page');
         }
 
         async function loadPlayerData() {
+            if (!supabase || !currentUser) return;
             let { data, error } = await supabase
                 .from('player_data')
                 .select('*')
@@ -359,7 +372,7 @@
         }
 
         async function savePlayerData() {
-            if (!currentUser) return;
+            if (!supabase || !currentUser) return;
             await supabase
                 .from('player_data')
                 .update({ coins: coins, level: currentLevel, updated_at: new Date() })
