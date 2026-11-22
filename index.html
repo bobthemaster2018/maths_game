@@ -34,6 +34,19 @@
             font-size: 16px;
             margin: 5px;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
         #robot-container {
             margin: 15px auto;
             display: none;
@@ -200,12 +213,38 @@
         </div>
     </div>
 
+    <!-- ADMIN PANEL PAGE -->
+    <div id="admin-page" class="page">
+        <div class="card" style="width: 600px; max-width: 95%;">
+            <h1>Admin User Data</h1>
+            <p>List of all registered players in Supabase:</p>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Coins</th>
+                            <th>Level</th>
+                            <th>Updated At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+        </div>
+    </div>
+
     <!-- MAIN GAME PAGE -->
     <div id="game-page" class="page">
         <div class="card">
             <h1>Math Money Game</h1>
             <p>Level: <span id="level">Noob</span></p>
             <p>Coins: <span id="coins">0</span></p>
+            <p>Last Updated: <span id="updated-at">Never</span></p>
             <p>Correct in current level: <span id="correctCount">0</span> / <span id="targetCount">2</span></p>
             <p id="secret-robot-status" style="color: #e91e63; font-weight: bold; display: none;">Secret Robot Active! Time Left: <span id="secret-robot-timer">600</span>s</p>
             
@@ -260,6 +299,8 @@
                 <button onclick="applySecretCoins()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Set Coins</button>
                 <br><br>
                 <button onclick="spawnSecretRobot()" style="padding: 5px 10px; font-size: 14px; background-color: #e91e63; color: white;">Spawn Secret Robot Now</button>
+                <br><br>
+                <button onclick="openAdminPanel()" style="padding: 5px 10px; font-size: 14px; background-color: #ff9800; color: white;">Open Admin Panel</button>
             </div>
 
             <br><br>
@@ -287,6 +328,7 @@
         let coins = 0;
         let correctCount = 0;
         let currentLevel = "Noob";
+        let updatedAt = "Never";
         let num1, num2, correctAnswer;
         let num3, num4, correctAnswer2;
         let robotActive = false;
@@ -383,6 +425,7 @@
             currentUser = null;
             coins = 0;
             currentLevel = "Noob";
+            updatedAt = "Never";
             correctCount = 0;
             updateDisplay();
             alert("Signed out!");
@@ -401,23 +444,31 @@
             if (data) {
                 coins = data.coins;
                 currentLevel = data.level;
+                updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
             } else {
                 await supabase.from('player_data').insert([{ user_id: currentUser.id, coins: coins, level: currentLevel }]);
+                updatedAt = "Just now";
             }
             updateDisplay();
         }
 
         async function savePlayerData() {
             if (!supabase || !currentUser) return;
-            await supabase
+            let now = new Date();
+            let { error } = await supabase
                 .from('player_data')
-                .update({ coins: coins, level: currentLevel, updated_at: new Date() })
+                .update({ coins: coins, level: currentLevel, updated_at: now })
                 .eq('user_id', currentUser.id);
+            if (!error) {
+                updatedAt = now.toLocaleString();
+                updateDisplay();
+            }
         }
 
         function updateDisplay() {
             document.getElementById("coins").innerText = coins;
             document.getElementById("level").innerText = currentLevel;
+            document.getElementById("updated-at").innerText = updatedAt;
             document.getElementById("correctCount").innerText = correctCount;
             document.getElementById("targetCount").innerText = getTargetCount();
         }
@@ -433,6 +484,37 @@
             let pages = document.querySelectorAll('.page');
             pages.forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+        }
+
+        async function openAdminPanel() {
+            if (!supabase) return;
+            let { data, error } = await supabase
+                .from('player_data')
+                .select('*');
+
+            let tbody = document.getElementById("admin-table-body");
+            tbody.innerHTML = "";
+
+            if (error) {
+                alert("Error loading admin data: " + error.message);
+                return;
+            }
+
+            if (data) {
+                data.forEach(row => {
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${row.user_id}</td>
+                        <td>${row.coins}</td>
+                        <td>${row.level}</td>
+                        <td>${row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById("secret-menu").style.display = "none";
+            switchPage('admin-page');
         }
 
         function toggleCheats() {
@@ -880,6 +962,7 @@
         window.beginChallengeTimer = beginChallengeTimer;
         window.checkChallengeAnswer = checkChallengeAnswer;
         window.handleMenuAuthClick = handleMenuAuthClick;
+        window.openAdminPanel = openAdminPanel;
     </script>
 </body>
 </html>
