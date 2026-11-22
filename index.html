@@ -300,7 +300,7 @@
                 <br><br>
                 <button onclick="spawnSecretRobot()" style="padding: 5px 10px; font-size: 14px; background-color: #e91e63; color: white;">Spawn Secret Robot Now</button>
                 <br><br>
-                <button onclick="openAdminPanel()" style="padding: 5px 10px; font-size: 14px; background-color: #ff9800; color: white;">Open Admin Panel</button>
+                <button id="admin-panel-btn" onclick="openAdminPanel()" style="padding: 5px 10px; font-size: 14px; background-color: #ff9800; color: white; display: none;">Open Admin Panel</button>
             </div>
 
             <br><br>
@@ -329,6 +329,7 @@
         let correctCount = 0;
         let currentLevel = "Noob";
         let updatedAt = "Never";
+        let isAdmin = false;
         let num1, num2, correctAnswer;
         let num3, num4, correctAnswer2;
         let robotActive = false;
@@ -426,7 +427,9 @@
             coins = 0;
             currentLevel = "Noob";
             updatedAt = "Never";
+            isAdmin = false;
             correctCount = 0;
+            document.getElementById("admin-panel-btn").style.display = "none";
             updateDisplay();
             alert("Signed out!");
             updateMenuAuthButton();
@@ -444,11 +447,20 @@
             if (data) {
                 coins = data.coins;
                 currentLevel = data.level;
+                isAdmin = data.is_admin || false;
                 updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
             } else {
-                await supabase.from('player_data').insert([{ user_id: currentUser.id, coins: coins, level: currentLevel }]);
+                await supabase.from('player_data').insert([{ user_id: currentUser.id, coins: coins, level: currentLevel, is_admin: false }]);
+                isAdmin = false;
                 updatedAt = "Just now";
             }
+
+            if (isAdmin) {
+                document.getElementById("admin-panel-btn").style.display = "inline-block";
+            } else {
+                document.getElementById("admin-panel-btn").style.display = "none";
+            }
+
             updateDisplay();
         }
 
@@ -487,7 +499,7 @@
         }
 
         async function openAdminPanel() {
-            if (!supabase) return;
+            if (!supabase || !isAdmin) return;
             let { data, error } = await supabase
                 .from('player_data')
                 .select('*');
