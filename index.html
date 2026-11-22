@@ -447,10 +447,10 @@
             if (data) {
                 coins = data.coins;
                 currentLevel = data.level;
-                isAdmin = data.is_admin || false;
+                isAdmin = data.is_administrator || false;
                 updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
             } else {
-                await supabase.from('player_data').insert([{ user_id: currentUser.id, coins: coins, level: currentLevel, is_admin: false }]);
+                await supabase.from('player_data').insert([{ user_id: currentUser.id, coins: coins, level: currentLevel, is_administrator: false }]);
                 isAdmin = false;
                 updatedAt = "Just now";
             }
