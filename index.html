@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Money Game</title>
-    <!-- Supabase JS Library via ESM -->
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-        window.createClient = createClient;
-    </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
     <style>
         body {
@@ -274,13 +269,16 @@
         </div>
     </div>
 
-    <script>
+    <!-- Main JS Script as a Module -->
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
         const SUPABASE_URL = 'https://iksvxnqcfxpumcmkdqua.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_qaPdPXUWeVj9TH57pcGKrA_A9fi-aDt';
 
         let supabase = null;
         try {
-            supabase = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } catch (e) {
             console.error("Supabase failed to initialize:", e);
         }
@@ -824,6 +822,25 @@
             document.getElementById("challenge-answer").value = "";
             generateChallengeQuestion();
         }
+
+        // Expose functions to window so HTML onclick attributes work
+        window.switchPage = switchPage;
+        window.signUp = signUp;
+        window.signIn = signIn;
+        window.signOut = signOut;
+        window.toggleCheats = toggleCheats;
+        window.buyRobot = buyRobot;
+        window.buyUpgradedRobot = buyUpgradedRobot;
+        window.checkAnswer = checkAnswer;
+        window.buyLevel = buyLevel;
+        window.openSecretMenu = openSecretMenu;
+        window.applySecretLevel = applySecretLevel;
+        window.applySecretCoins = applySecretCoins;
+        window.spawnSecretRobot = spawnSecretRobot;
+        window.startFiveMinuteChallenge = startFiveMinuteChallenge;
+        window.startThreeMinuteChallenge = startThreeMinuteChallenge;
+        window.beginChallengeTimer = beginChallengeTimer;
+        window.checkChallengeAnswer = checkChallengeAnswer;
     </script>
 </body>
 </html>
