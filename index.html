@@ -137,7 +137,7 @@
             <button class="minecraft-btn" onclick="switchPage('game-page')">Play Game</button>
             <button class="minecraft-btn" onclick="switchPage('challenges-page')">Challenges</button>
             <button class="minecraft-btn" onclick="switchPage('settings-page')">Settings</button>
-            <button class="minecraft-btn" onclick="switchPage('auth-page')" style="background-color: #2196f3;">Sign In / Create Account</button>
+            <button class="minecraft-btn" id="menu-auth-btn" onclick="handleMenuAuthClick()" style="background-color: #2196f3;">Sign In / Create Account</button>
         </div>
         <div id="sitting-player" title="Huge Sitting Player Playing Game">🧎🎮💻</div>
     </div>
@@ -306,6 +306,25 @@
         let challengeTimerInterval = null;
         let challengeNum1, challengeNum2, challengeCorrectAnswer;
 
+        function updateMenuAuthButton() {
+            let btn = document.getElementById("menu-auth-btn");
+            if (currentUser) {
+                btn.innerText = "Sign Out";
+                btn.style.backgroundColor = "#d32f2f";
+            } else {
+                btn.innerText = "Sign In / Create Account";
+                btn.style.backgroundColor = "#2196f3";
+            }
+        }
+
+        function handleMenuAuthClick() {
+            if (currentUser) {
+                signOut();
+            } else {
+                switchPage('auth-page');
+            }
+        }
+
         async function signUp() {
             if (!supabase) return;
             let username = document.getElementById("username").value;
@@ -319,7 +338,20 @@
             if (error) {
                 document.getElementById("auth-status").innerText = error.message;
             } else {
-                alert("Sign up successful! Click Sign In.");
+                currentUser = data.user;
+                if (!currentUser) {
+                    let signInRes = await supabase.auth.signInWithPassword({ email, password });
+                    currentUser = signInRes.data.user;
+                }
+                if (currentUser) {
+                    await loadPlayerData();
+                    alert("Account created and signed in!");
+                    updateMenuAuthButton();
+                    switchPage('menu-page');
+                } else {
+                    alert("Sign up successful! Please sign in.");
+                    switchPage('auth-page');
+                }
             }
         }
 
@@ -339,6 +371,7 @@
                 currentUser = data.user;
                 await loadPlayerData();
                 alert("Signed in successfully!");
+                updateMenuAuthButton();
                 switchPage('menu-page');
             }
         }
@@ -348,7 +381,12 @@
                 await supabase.auth.signOut();
             }
             currentUser = null;
+            coins = 0;
+            currentLevel = "Noob";
+            correctCount = 0;
+            updateDisplay();
             alert("Signed out!");
+            updateMenuAuthButton();
             switchPage('menu-page');
         }
 
@@ -841,6 +879,7 @@
         window.startThreeMinuteChallenge = startThreeMinuteChallenge;
         window.beginChallengeTimer = beginChallengeTimer;
         window.checkChallengeAnswer = checkChallengeAnswer;
+        window.handleMenuAuthClick = handleMenuAuthClick;
     </script>
 </body>
 </html>
