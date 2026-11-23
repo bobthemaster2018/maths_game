@@ -1,24 +1,730 @@
-function spawnSecretRobot() {
-            if (secretRobotActive) {
-                alert("Secret Robot is already active!");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Money Game</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 2;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #robot-container {
+            margin: 15px auto;
+            display: none;
+        }
+        #robot-img {
+            width: 80px;
+            height: 80px;
+            background-color: #b0bec5;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+
+        #menu-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #2b2b2b;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px);
+            background-size: 32px 32px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+        }
+        #menu-page.active {
+            display: flex;
+        }
+        .minecraft-menu-container {
+            text-align: center;
+            width: 400px;
+            max-width: 90%;
+            z-index: 2;
+            margin-bottom: 120px;
+        }
+        .minecraft-title {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 4px 4px #000000;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+        .minecraft-btn {
+            background-color: #727272;
+            color: #ffffff;
+            border: 3px solid #1f1f1f;
+            border-top-color: #a8a8a8;
+            border-left-color: #a8a8a8;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.2);
+            text-shadow: 2px 2px #000000;
+        }
+        .minecraft-btn:hover {
+            background-color: #8a8a8a;
+            border-color: #3b3b3b;
+            border-top-color: #c6c6c6;
+            border-left-color: #c6c6c6;
+            color: #ffff55;
+        }
+
+        #sitting-player {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 160px;
+            z-index: 1;
+            user-select: none;
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6));
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MAIN MENU PAGE -->
+    <div id="menu-page" class="page active">
+        <div class="minecraft-menu-container">
+            <div class="minecraft-title">Math Money Game</div>
+            <button class="minecraft-btn" onclick="switchPage('game-page')">Play Game</button>
+            <button class="minecraft-btn" onclick="switchPage('challenges-page')">Challenges</button>
+            <button class="minecraft-btn" onclick="switchPage('settings-page')">Settings</button>
+            <button class="minecraft-btn" id="menu-auth-btn" onclick="handleMenuAuthClick()" style="background-color: #2196f3;">Sign In / Create Account</button>
+        </div>
+        <div id="sitting-player" title="Huge Sitting Player Playing Game">🧎🎮💻</div>
+    </div>
+
+    <!-- AUTH / LOGIN PAGE -->
+    <div id="auth-page" class="page">
+        <div class="card">
+            <h1>Save to Account</h1>
+            <p>Enter a username and password to save your progress!</p>
+            <input type="text" id="username" placeholder="Username"><br>
+            <input type="password" id="password" placeholder="Password"><br>
+            <button onclick="signUp()" style="background-color: #2196f3; color: white;">Sign Up</button>
+            <button onclick="signIn()" style="background-color: #4caf50; color: white;">Sign In</button>
+            <p id="auth-status" style="color: red;"></p>
+            <br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="settings-page" class="page">
+        <div class="card">
+            <h1>Settings</h1>
+            <p>
+                <label for="cheats-toggle">Cheats:</label>
+                <input type="checkbox" id="cheats-toggle" onchange="toggleCheats()" style="transform: scale(1.5); margin-left: 10px;">
+            </p>
+            <br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- CHALLENGES MENU PAGE -->
+    <div id="challenges-page" class="page">
+        <div class="card">
+            <h1>Challenges</h1>
+            <p>Select a challenge to test your skills:</p>
+            <button onclick="startFiveMinuteChallenge()" style="background-color: #2196f3; color: white;">Five-Minute Challenge</button><br><br>
+            <button onclick="startThreeMinuteChallenge()" style="background-color: #e91e63; color: white;">3-Min Challenge (Cost: 1,000,000,000,000,000 Coins)</button><br><br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- CHALLENGE GAME PAGE -->
+    <div id="challenge-game-page" class="page">
+        <div class="card">
+            <h1>Challenge</h1>
+            <p>Time Left: <span id="challenge-timer">5:00</span></p>
+            <p>Questions Correct: <span id="challenge-correct">0</span> / 10</p>
+            
+            <h3 id="challenge-question">Press Start Timer when ready!</h3>
+            
+            <input type="number" id="challenge-answer" placeholder="Your answer" disabled>
+            <br>
+            <button id="start-timer-btn" onclick="beginChallengeTimer()" style="background-color: #4caf50; color: white;">Start Timer</button>
+            <button id="challenge-submit-btn" onclick="checkChallengeAnswer()" style="display:none;">Submit</button>
+            
+            <br><br>
+            <button id="challenge-back-btn" onclick="switchPage('challenges-page')">Back to Challenges</button>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL PAGE -->
+    <div id="admin-page" class="page">
+        <div class="card" style="width: 600px; max-width: 95%;">
+            <h1>Admin User Data</h1>
+            <p>List of all registered players in Supabase:</p>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Coins</th>
+                            <th>Level</th>
+                            <th>Updated At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- MAIN GAME PAGE -->
+    <div id="game-page" class="page">
+        <div class="card">
+            <h1>Math Money Game</h1>
+            <p>Level: <span id="level">Noob</span></p>
+            <p>Coins: <span id="coins">0</span></p>
+            <p>Last Updated: <span id="updated-at">Never</span></p>
+            <p>Correct in current level: <span id="correctCount">0</span> / <span id="targetCount">2</span></p>
+            <p id="secret-robot-status" style="color: #e91e63; font-weight: bold; display: none;">Secret Robot Active! Time Left: <span id="secret-robot-timer">600</span>s</p>
+            
+            <h3 id="question">Loading question...</h3>
+            <h3 id="question2" style="display:none; color: #d32f2f;"></h3>
+            
+            <div id="robot-container">
+                <div id="robot-img">🤖</div>
+                <p><span id="robot-status">Robo-is thinking...</span> <span id="countdown">5</span>s</p>
+            </div>
+
+            <input type="number" id="answer" placeholder="Your answer">
+            <br>
+            <button onclick="checkAnswer()">Submit</button>
+
+            <h3>Shop / Level Up</h3>
+            <div id="robot-shop-buttons" style="display: none;">
+                <button id="buy-robot-btn" onclick="buyRobot()">Buy Robo-Solver (5 Coins)</button><br>
+                <button id="upgrade-btn" onclick="buyUpgradedRobot()" style="display:none;">Upgrade Robot (10 Coins)</button><br>
+            </div>
+
+            <button onclick="buyLevel('Pro', 100)">Buy Pro Level (100 Coins)</button><br>
+            <button onclick="buyLevel('God', 1000)">Buy God Level (1,000 Coins)</button><br>
+            <button onclick="buyLevel('Hacker', 1000000)">Buy Hacker Level (1,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Rat Hacker', 100000000)">Buy Rat Hacker Level (100,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
+            <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
+            <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button>
+            
+            <br><br>
+            <button onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
+
+            <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
+                <h4>Secret Level & Coin Changer</h4>
+                <select id="secret-level-select" style="padding: 5px; font-size: 14px;">
+                    <option value="Noob">Noob</option>
+                    <option value="Pro">Pro</option>
+                    <option value="God">God</option>
+                    <option value="Hacker">Hacker</option>
+                    <option value="Rat Hacker">Rat Hacker</option>
+                    <option value="Lion Hacker">Lion Hacker</option>
+                    <option value="Zombie Hacker">Zombie Hacker</option>
+                    <option value="Zombie Divine">Zombie Divine</option>
+                    <option value="Wow Divine">Wow Divine</option>
+                </select>
+                <br>
+                <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
+                <br><br>
+                <input type="number" id="secret-coins-input" placeholder="Set coins amount" style="padding: 5px; font-size: 14px; width: 140px;">
+                <br>
+                <button onclick="applySecretCoins()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Set Coins</button>
+                <br><br>
+                <button onclick="spawnSecretRobot()" style="padding: 5px 10px; font-size: 14px; background-color: #e91e63; color: white;">Spawn Secret Robot Now</button>
+                <br><br>
+                <button id="admin-panel-btn" onclick="openAdminPanel()" style="padding: 5px 10px; font-size: 14px; background-color: #ff9800; color: white; display: none;">Open Admin Panel</button>
+            </div>
+
+            <br><br>
+            <button onclick="switchPage('menu-page')">Back to Menu</button>
+            <br>
+            <center>Version 21</center>
+        </div>
+    </div>
+
+    <!-- Main JS Script as a Module -->
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        const SUPABASE_URL = 'https://iksvxnqcfxpumcmkdqua.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qaPdPXUWeVj9TH57pcGKrA_A9fi-aDt';
+
+        let supabase = null;
+        try {
+            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error("Supabase failed to initialize:", e);
+        }
+
+        let currentUser = null;
+        let coins = 0;
+        let correctCount = 0;
+        let currentLevel = "Noob";
+        let updatedAt = "Never";
+        let isAdmin = false;
+        let num1, num2, correctAnswer;
+        let num3, num4, correctAnswer2;
+        let robotActive = false;
+        let robotUpgraded = false;
+        let robotCount = 0;
+        let robotUpgradeLevel = 0;
+        let robotTimer = null;
+        let countdownTimer = null;
+
+        let secretRobotActive = false;
+        let secretRobotInterval = null;
+        let secretRobotCountdownInterval = null;
+        let secretRobotTimeLeft = 600;
+
+        let challengeCorrectCount = 0;
+        let challengeTimeLeft = 300;
+        let challengeTimerInterval = null;
+        let challengeNum1, challengeNum2, challengeCorrectAnswer;
+
+        function updateMenuAuthButton() {
+            let btn = document.getElementById("menu-auth-btn");
+            if (currentUser) {
+                btn.innerText = "Sign Out";
+                btn.style.backgroundColor = "#d32f2f";
+            } else {
+                btn.innerText = "Sign In / Create Account";
+                btn.style.backgroundColor = "#2196f3";
+            }
+        }
+
+        function handleMenuAuthClick() {
+            if (currentUser) {
+                signOut();
+            } else {
+                switchPage('auth-page');
+            }
+        }
+
+        async function signUp() {
+            if (!supabase) return;
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            if (!username || !password) {
+                document.getElementById("auth-status").innerText = "Enter username and password!";
+                return;
+            }
+            let email = username + "@mygame.local";
+            let { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) {
+                document.getElementById("auth-status").innerText = error.message;
+            } else {
+                currentUser = data.user;
+                if (!currentUser) {
+                    let signInRes = await supabase.auth.signInWithPassword({ email, password });
+                    currentUser = signInRes.data.user;
+                }
+                if (currentUser) {
+                    await loadPlayerData();
+                    alert("Account created and signed in!");
+                    updateMenuAuthButton();
+                    switchPage('menu-page');
+                } else {
+                    alert("Sign up successful! Please sign in.");
+                    switchPage('auth-page');
+                }
+            }
+        }
+
+        async function signIn() {
+            if (!supabase) return;
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            if (!username || !password) {
+                document.getElementById("auth-status").innerText = "Enter username and password!";
+                return;
+            }
+            let email = username + "@mygame.local";
+            let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                document.getElementById("auth-status").innerText = error.message;
+            } else {
+                currentUser = data.user;
+                await loadPlayerData();
+                alert("Signed in successfully!");
+                updateMenuAuthButton();
+                switchPage('menu-page');
+            }
+        }
+
+        async function signOut() {
+            if (supabase) {
+                await supabase.auth.signOut();
+            }
+            currentUser = null;
+            coins = 0;
+            currentLevel = "Noob";
+            updatedAt = "Never";
+            isAdmin = false;
+            correctCount = 0;
+            document.getElementById("admin-panel-btn").style.display = "none";
+            updateDisplay();
+            alert("Signed out!");
+            updateMenuAuthButton();
+            switchPage('menu-page');
+        }
+
+        async function loadPlayerData() {
+            if (!supabase || !currentUser) return;
+            let { data, error } = await supabase
+                .from('player_data')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+
+            if (data) {
+                coins = data.coins;
+                currentLevel = data.level;
+                isAdmin = data.is_administrator || false;
+                updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
+            } else {
+                await supabase.from('player_data').insert([{ 
+                    user_id: currentUser.id, 
+                    coins: 0, 
+                    level: 'Noob', 
+                    is_administrator: false 
+                }]);
+                coins = 0;
+                currentLevel = 'Noob';
+                isAdmin = false;
+                updatedAt = "Just now";
+            }
+
+            if (isAdmin) {
+                document.getElementById("admin-panel-btn").style.display = "inline-block";
+            } else {
+                document.getElementById("admin-panel-btn").style.display = "none";
+            }
+
+            updateDisplay();
+        }
+
+        async function savePlayerData() {
+            if (!supabase || !currentUser) return;
+            let now = new Date();
+            let { error } = await supabase
+                .from('player_data')
+                .update({ coins: coins, level: currentLevel, updated_at: now })
+                .eq('user_id', currentUser.id);
+            if (!error) {
+                updatedAt = now.toLocaleString();
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById("coins").innerText = coins;
+            document.getElementById("level").innerText = currentLevel;
+            document.getElementById("updated-at").innerText = updatedAt;
+            document.getElementById("correctCount").innerText = correctCount;
+            document.getElementById("targetCount").innerText = getTargetCount();
+        }
+
+        function switchPage(pageId) {
+            if (pageId !== 'challenge-game-page') {
+                clearInterval(challengeTimerInterval);
+            }
+            if (pageId === 'game-page') {
+                generateQuestion();
+            }
+            
+            let pages = document.querySelectorAll('.page');
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        async function openAdminPanel() {
+            if (!supabase || !isAdmin) return;
+            let { data, error } = await supabase
+                .from('player_data')
+                .select('*');
+
+            let tbody = document.getElementById("admin-table-body");
+            tbody.innerHTML = "";
+
+            if (error) {
+                alert("Error loading admin data: " + error.message);
                 return;
             }
 
-            secretRobotActive = true;
-            secretRobotTimeLeft = 600;
-            document.getElementById("secret-robot-status").style.display = "block";
-            document.getElementById("secret-robot-timer").innerText = secretRobotTimeLeft;
+            if (data) {
+                data.forEach(row => {
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${row.user_id}</td>
+                        <td>${row.coins}</td>
+                        <td>${row.level}</td>
+                        <td>${row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
 
-            secretRobotCountdownInterval = setInterval(() => {
-                secretRobotTimeLeft--;
-                document.getElementById("secret-robot-timer").innerText = secretRobotTimeLeft;
-                if (secretRobotTimeLeft <= 0) {
-                    stopSecretRobot();
+            document.getElementById("secret-menu").style.display = "none";
+            switchPage('admin-page');
+        }
+
+        function toggleCheats() {
+            let isChecked = document.getElementById("cheats-toggle").checked;
+            let robotShopDiv = document.getElementById("robot-shop-buttons");
+
+            if (isChecked) {
+                robotShopDiv.style.display = "block";
+            } else {
+                robotShopDiv.style.display = "none";
+                robotActive = false;
+                robotUpgraded = false;
+                robotCount = 0;
+                robotUpgradeLevel = 0;
+                document.getElementById("buy-robot-btn").innerText = "Buy Robo-Solver (5 Coins)";
+                document.getElementById("buy-robot-btn").disabled = false;
+                document.getElementById("upgrade-btn").innerText = "Upgrade Robot (10 Coins)";
+                document.getElementById("upgrade-btn").disabled = false;
+                document.getElementById("robot-container").style.display = "none";
+                clearTimeout(robotTimer);
+                clearInterval(countdownTimer);
+            }
+        }
+
+        function getTargetCount() {
+            if (currentLevel === "Lion Hacker" || currentLevel === "Zombie Hacker" || currentLevel === "Zombie Divine" || currentLevel === "Wow Divine") {
+                return 10;
+            }
+            return 2;
+        }
+
+        function generateQuestion() {
+            let operators = ['+', '-', '*', '/'];
+            let op = operators[Math.floor(Math.random() * operators.length)];
+
+            if (op === '+') {
+                num1 = Math.floor(Math.random() * 50) + 10;
+                num2 = Math.floor(Math.random() * 50) + 10;
+                correctAnswer = num1 + num2;
+                document.getElementById("question").innerText = `What is ${num1} + ${num2}?`;
+            } else if (op === '-') {
+                num1 = Math.floor(Math.random() * 50) + 20;
+                num2 = Math.floor(Math.random() * 20) + 1;
+                correctAnswer = num1 - num2;
+                document.getElementById("question").innerText = `What is ${num1} - ${num2}?`;
+            } else if (op === '*') {
+                num1 = Math.floor(Math.random() * 12) + 2;
+                num2 = Math.floor(Math.random() * 12) + 2;
+                correctAnswer = num1 * num2;
+                document.getElementById("question").innerText = `What is ${num1} × ${num2}?`;
+            } else if (op === '/') {
+                num2 = Math.floor(Math.random() * 10) + 2;
+                let multiplier = Math.floor(Math.random() * 10) + 2;
+                num1 = num2 * multiplier;
+                correctAnswer = multiplier;
+                document.getElementById("question").innerText = `What is ${num1} ÷ ${num2}?`;
+            }
+
+            if (robotUpgraded) {
+                let op2 = operators[Math.floor(Math.random() * operators.length)];
+                if (op2 === '+') {
+                    num3 = Math.floor(Math.random() * 50) + 10;
+                    num4 = Math.floor(Math.random() * 50) + 10;
+                    correctAnswer2 = num3 + num4;
+                    document.getElementById("question2").innerText = `What is ${num3} + ${num4}?`;
+                } else if (op2 === '-') {
+                    num3 = Math.floor(Math.random() * 50) + 20;
+                    num4 = Math.floor(Math.random() * 20) + 1;
+                    correctAnswer2 = num3 - num4;
+                    document.getElementById("question2").innerText = `What is ${num3} - ${num4}?`;
+                } else if (op2 === '*') {
+                    num3 = Math.floor(Math.random() * 12) + 2;
+                    num4 = Math.floor(Math.random() * 12) + 2;
+                    correctAnswer2 = num3 * num4;
+                    document.getElementById("question2").innerText = `What is ${num3} × ${num4}?`;
+                } else if (op2 === '/') {
+                    num4 = Math.floor(Math.random() * 10) + 2;
+                    let multiplier2 = Math.floor(Math.random() * 10) + 2;
+                    num3 = num4 * multiplier2;
+                    correctAnswer2 = multiplier2;
+                    document.getElementById("question2").innerText = `What is ${num3} ÷ ${num4}?`;
+                }
+                document.getElementById("question2").style.display = "block";
+            }
+
+            if (robotActive) {
+                startRobotCycle();
+            }
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseInt(document.getElementById("answer").value);
+            if (userAnswer === correctAnswer) {
+                correctCount++;
+                let target = getTargetCount();
+                if (correctCount >= target) {
+                    correctCount = 0;
+                    giveReward();
+                }
+                alert("Correct!");
+            } else {
+                alert("Wrong! Try again.");
+            }
+            updateDisplay();
+            document.getElementById("answer").value = "";
+            generateQuestion();
+        }
+
+        function buyRobot() {
+            if (robotCount >= 5) {
+                alert("Max Robots Reached!");
+                return;
+            }
+
+            if (coins >= 5) {
+                coins -= 5;
+                robotCount++;
+                updateDisplay();
+                savePlayerData();
+                
+                robotActive = true;
+                document.getElementById("robot-container").style.display = "block";
+                
+                if (robotCount < 5) {
+                    document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
+                } else {
+                    document.getElementById("buy-robot-btn").innerText = "Max Robots Reached";
+                    document.getElementById("buy-robot-btn").disabled = true;
+                    document.getElementById("upgrade-btn").style.display = "inline-block";
+                }
+
+                alert("Beep boop! Robo-Solver activated! (" + robotCount + "/5)");
+                startRobotCycle();
+            } else {
+                alert("Not enough coins for the robot!");
+            }
+        }
+
+        function buyUpgradedRobot() {
+            if (robotUpgradeLevel >= 5) {
+                alert("Max Upgrade Reached!");
+                return;
+            }
+
+            if (coins >= 10) {
+                coins -= 10;
+                robotUpgradeLevel++;
+                updateDisplay();
+                savePlayerData();
+                
+                robotUpgraded = true;
+                document.getElementById("robot-img").innerText = "😈";
+                document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
+                document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/5) crushing...`;
+                
+                let upgradeBtn = document.getElementById("upgrade-btn");
+                if (robotUpgradeLevel < 5) {
+                    upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/5) (10 Coins)`;
+                } else {
+                    upgradeBtn.innerText = "Max Upgrade Reached";
+                    upgradeBtn.disabled = true;
+                }
+
+                alert(`ROBO UPGRADED! Level ${robotUpgradeLevel}/5`);
+                startRobotCycle();
+            } else {
+                alert("Not enough coins to upgrade the robot!");
+            }
+        }
+
+        function startRobotCycle() {
+            clearTimeout(robotTimer);
+            clearInterval(countdownTimer);
+
+            let timeLeft = robotUpgraded ? (6 - robotUpgradeLevel) : 5;
+            if (timeLeft < 1) timeLeft = 1;
+            document.getElementById("countdown").innerText = timeLeft;
+
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("countdown").innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
                 }
             }, 1000);
 
-            secretRobotInterval = setInterval(() => {
-                correctCount += 5;
+            let speed = robotUpgraded ? (2000 - (robotUpgradeLevel * 200)) : 5000;
+            if (speed < 500) speed = 500;
+
+            robotTimer = setTimeout(() => {
+                correctCount += robotUpgraded ? (1 + robotUpgradeLevel) : 1;
                 let target = getTargetCount();
                 if (correctCount >= target) {
                     correctCount = 0;
@@ -26,52 +732,156 @@ function spawnSecretRobot() {
                 }
                 updateDisplay();
                 generateQuestion();
-            }, 2000);
+            }, speed);
+        }
 
-            alert("🤖 Secret Robot Activated! It will automatically solve questions for 10 minutes!");
+        function giveReward() {
+            if (currentLevel === "Noob") coins += 5;
+            else if (currentLevel === "Pro") coins += 100;
+            else if (currentLevel === "God") coins += 1000;
+            else if (currentLevel === "Hacker") coins += 1000000;
+            else if (currentLevel === "Rat Hacker") coins += 100000000;
+            else if (currentLevel === "Lion Hacker") coins += 1000000000;
+            else if (currentLevel === "Zombie Hacker") coins += 100000000000;
+            else if (currentLevel === "Zombie Divine") coins += 1000000000000;
+            else if (currentLevel === "Wow Divine") coins += 100000000000000;
+            updateDisplay();
+            savePlayerData();
+        }
+
+        function buyLevel(levelName, cost) {
+            if (coins >= cost) {
+                coins -= cost;
+                currentLevel = levelName;
+                correctCount = 0;
+                updateDisplay();
+                savePlayerData();
+                alert("You leveled up to " + levelName + "!");
+            } else {
+                alert("Not enough coins!");
+            }
+        }
+
+        function openSecretMenu() {
+            let pin = prompt("Enter PIN:");
+            if (pin === "2018") {
+                document.getElementById("secret-menu").style.display = "block";
+            } else if (pin !== null) {
+                alert("Incorrect PIN!");
+            }
+        }
+
+        function applySecretLevel() {
+            let selectedLevel = document.getElementById("secret-level-select").value;
+            currentLevel = selectedLevel;
+            correctCount = 0;
+            updateDisplay();
+            savePlayerData();
+            alert("Level changed to " + currentLevel + "!");
             document.getElementById("secret-menu").style.display = "none";
         }
 
-        function stopSecretRobot() {
-            secretRobotActive = false;
-            clearInterval(secretRobotInterval);
-            clearInterval(secretRobotCountdownInterval);
-            document.getElementById("secret-robot-status").style.display = "none";
-            alert("Secret Robot has finished its shift!");
+        function applySecretCoins() {
+            let customCoins = parseInt(document.getElementById("secret-coins-input").value);
+            if (!isNaN(customCoins)) {
+                coins = customCoins;
+                updateDisplay();
+                savePlayerData();
+                alert("Coins updated to " + coins + "!");
+                document.getElementById("secret-menu").style.display = "none";
+                document.getElementById("secret-coins-input").value = "";
+            } else {
+                alert("Please enter a valid number for coins!");
+            }
         }
+
+        function spawnSecretRobot() {
+            if (secretRobotActive) {
+                alert("A secret robot is already active!");
+                return;
+            }
+
+            secretRobotActive = true;
+            secretRobotTimeLeft = 600;
+            document.getElementById("secret-robot-status").style.display = "block";
+            document.getElementById("secret-robot-timer").innerText = secretRobotTimeLeft;
+            alert("A secret robot has spawned! It will generate 100,000,000 dollars per second for 10 minutes!");
+            document.getElementById("secret-menu").style.display = "none";
+
+            secretRobotInterval = setInterval(() => {
+                coins += 100000000;
+                updateDisplay();
+                savePlayerData();
+            }, 1000);
+
+            secretRobotCountdownInterval = setInterval(() => {
+                secretRobotTimeLeft--;
+                document.getElementById("secret-robot-timer").innerText = secretRobotTimeLeft;
+
+                if (secretRobotTimeLeft <= 0) {
+                    clearInterval(secretRobotInterval);
+                    clearInterval(secretRobotCountdownInterval);
+                    secretRobotActive = false;
+                    document.getElementById("secret-robot-status").style.display = "none";
+                    alert("The secret robot's 10 minutes are up and it has left!");
+                }
+            }, 1000);
+        }
+
+        setInterval(() => {
+            let chance = Math.random();
+            if (chance < 0.90 && !secretRobotActive && currentUser) {
+                alert("A secret robot has spawned! Go check it out!");
+                spawnSecretRobot();
+            }
+        }, 600000);
 
         function startFiveMinuteChallenge() {
             challengeCorrectCount = 0;
             challengeTimeLeft = 300;
             document.getElementById("challenge-correct").innerText = challengeCorrectCount;
-            document.getElementById("challenge-timer").innerText = "5:00";
+            updateTimerDisplay();
             document.getElementById("challenge-question").innerText = "Press Start Timer when ready!";
             document.getElementById("challenge-answer").value = "";
             document.getElementById("challenge-answer").disabled = true;
             document.getElementById("start-timer-btn").style.display = "inline-block";
             document.getElementById("challenge-submit-btn").style.display = "none";
+            document.getElementById("challenge-back-btn").style.display = "inline-block";
+            
             switchPage('challenge-game-page');
         }
 
         function startThreeMinuteChallenge() {
-            if (coins < 1000000000000000) {
-                alert("You need 1,000,000,000,000,000 Coins to enter the 3-Min Challenge!");
-                return;
+            let challengeCost = 1000000000000000;
+            if (coins >= challengeCost) {
+                coins -= challengeCost;
+                updateDisplay();
+                savePlayerData();
+                
+                challengeCorrectCount = 0;
+                challengeTimeLeft = 180;
+                document.getElementById("challenge-correct").innerText = challengeCorrectCount;
+                updateTimerDisplay();
+                document.getElementById("challenge-question").innerText = "Press Start Timer when ready!";
+                document.getElementById("challenge-answer").value = "";
+                document.getElementById("challenge-answer").disabled = true;
+                document.getElementById("start-timer-btn").style.display = "inline-block";
+                document.getElementById("challenge-submit-btn").style.display = "none";
+                document.getElementById("challenge-back-btn").style.display = "inline-block";
+                
+                switchPage('challenge-game-page');
+            } else {
+                alert("Not enough coins! You need 1,000,000,000,000,000 coins to play the 3-Min Challenge.");
             }
-            coins -= 1000000000000000;
-            updateDisplay();
-            savePlayerData();
+        }
 
-            challengeCorrectCount = 0;
-            challengeTimeLeft = 180;
-            document.getElementById("challenge-correct").innerText = challengeCorrectCount;
-            document.getElementById("challenge-timer").innerText = "3:00";
-            document.getElementById("challenge-question").innerText = "Press Start Timer when ready!";
-            document.getElementById("challenge-answer").value = "";
-            document.getElementById("challenge-answer").disabled = true;
-            document.getElementById("start-timer-btn").style.display = "inline-block";
-            document.getElementById("challenge-submit-btn").style.display = "none";
-            switchPage('challenge-game-page');
+        function updateTimerDisplay() {
+            let minutes = Math.floor(challengeTimeLeft / 60);
+            let seconds = challengeTimeLeft % 60;
+            if (seconds < 10) {
+                seconds = "0" + seconds;
+            }
+            document.getElementById("challenge-timer").innerText = minutes + ":" + seconds;
         }
 
         function beginChallengeTimer() {
@@ -79,54 +889,99 @@ function spawnSecretRobot() {
             document.getElementById("challenge-submit-btn").style.display = "inline-block";
             document.getElementById("challenge-answer").disabled = false;
             document.getElementById("challenge-answer").focus();
+            
             generateChallengeQuestion();
 
             clearInterval(challengeTimerInterval);
             challengeTimerInterval = setInterval(() => {
                 challengeTimeLeft--;
-                let mins = Math.floor(challengeTimeLeft / 60);
-                let secs = challengeTimeLeft % 60;
-                document.getElementById("challenge-timer").innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-
+                updateTimerDisplay();
+                
                 if (challengeTimeLeft <= 0) {
                     clearInterval(challengeTimerInterval);
-                    alert("Time's up! You got " + challengeCorrectCount + " correct.");
-                    document.getElementById("challenge-answer").disabled = true;
-                    document.getElementById("challenge-submit-btn").style.display = "none";
+                    alert("Time's up! Returning to menu.");
+                    switchPage('menu-page');
                 }
             }, 1000);
         }
 
         function generateChallengeQuestion() {
-            challengeNum1 = Math.floor(Math.random() * 50) + 10;
-            challengeNum2 = Math.floor(Math.random() * 50) + 10;
-            challengeCorrectAnswer = challengeNum1 + challengeNum2;
-            document.getElementById("challenge-question").innerText = `What is ${challengeNum1} + ${challengeNum2}?`;
+            let operators = ['+', '-'];
+            let op = operators[Math.floor(Math.random() * operators.length)];
+
+            if (op === '+') {
+                challengeNum1 = Math.floor(Math.random() * 20) + 1;
+                challengeNum2 = Math.floor(Math.random() * 20) + 1;
+                challengeCorrectAnswer = challengeNum1 + challengeNum2;
+                document.getElementById("challenge-question").innerText = `What is ${challengeNum1} + ${challengeNum2}?`;
+            } else {
+                challengeNum1 = Math.floor(Math.random() * 20) + 10;
+                challengeNum2 = Math.floor(Math.random() * 10) + 1;
+                if (challengeNum1 < challengeNum2) {
+                    let temp = challengeNum1;
+                    challengeNum1 = challengeNum2;
+                    challengeNum2 = temp;
+                }
+                challengeCorrectAnswer = challengeNum1 - challengeNum2;
+                document.getElementById("challenge-question").innerText = `What is ${challengeNum1} - ${challengeNum2}?`;
+            }
         }
 
         function checkChallengeAnswer() {
-            let userAns = parseInt(document.getElementById("challenge-answer").value);
-            if (userAns === challengeCorrectAnswer) {
+            let userAnswer = parseInt(document.getElementById("challenge-answer").value);
+            if (userAnswer === challengeCorrectAnswer) {
                 challengeCorrectCount++;
                 document.getElementById("challenge-correct").innerText = challengeCorrectCount;
+                
                 if (challengeCorrectCount >= 10) {
                     clearInterval(challengeTimerInterval);
-                    alert("Congratulations! You completed the challenge!");
-                    coins += 50000;
-                    updateDisplay();
-                    savePlayerData();
-                    switchPage('challenges-page');
+                    document.getElementById("challenge-question").innerText = "You successfully completed the challenge!";
+                    document.getElementById("challenge-answer").style.display = "none";
+                    document.getElementById("challenge-submit-btn").style.display = "none";
+                    document.getElementById("challenge-back-btn").style.display = "none";
+                    
+                    let card = document.querySelector("#challenge-game-page .card");
+                    let winBtn = document.createElement("button");
+                    winBtn.id = "win-menu-btn";
+                    winBtn.innerText = "You Won Go To Menu";
+                    winBtn.style.backgroundColor = "#4caf50";
+                    winBtn.style.color = "white";
+                    winBtn.onclick = function() {
+                        winBtn.remove();
+                        document.getElementById("challenge-answer").style.display = "inline-block";
+                        switchPage('menu-page');
+                    };
+                    card.appendChild(winBtn);
                     return;
                 }
+                alert("Correct!");
             } else {
-                alert("Incorrect!");
+                alert("Wrong! Try again.");
             }
             document.getElementById("challenge-answer").value = "";
             generateChallengeQuestion();
         }
 
-        // Initialize auth UI on load
-        updateMenuAuthButton();
+        // Expose functions to window
+        window.switchPage = switchPage;
+        window.signUp = signUp;
+        window.signIn = signIn;
+        window.signOut = signOut;
+        window.toggleCheats = toggleCheats;
+        window.buyRobot = buyRobot;
+        window.buyUpgradedRobot = buyUpgradedRobot;
+        window.checkAnswer = checkAnswer;
+        window.buyLevel = buyLevel;
+        window.openSecretMenu = openSecretMenu;
+        window.applySecretLevel = applySecretLevel;
+        window.applySecretCoins = applySecretCoins;
+        window.spawnSecretRobot = spawnSecretRobot;
+        window.startFiveMinuteChallenge = startFiveMinuteChallenge;
+        window.startThreeMinuteChallenge = startThreeMinuteChallenge;
+        window.beginChallengeTimer = beginChallengeTimer;
+        window.checkChallengeAnswer = checkChallengeAnswer;
+        window.handleMenuAuthClick = handleMenuAuthClick;
+        window.openAdminPanel = openAdminPanel;
     </script>
 </body>
 </html>
