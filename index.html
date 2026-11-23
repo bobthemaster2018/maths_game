@@ -392,7 +392,9 @@
                         username: username,
                         coins: 0, 
                         level: 'Noob', 
-                        is_administrator: false 
+                        is_administrator: false,
+                        robot_count: 0,
+                        robot_upgrade_level: 0
                     }]);
 
                     await loadPlayerData();
@@ -437,6 +439,11 @@
             updatedAt = "Never";
             isAdmin = false;
             correctCount = 0;
+            robotCount = 0;
+            robotUpgradeLevel = 0;
+            robotActive = false;
+            robotUpgraded = false;
+            document.getElementById("robot-container").style.display = "none";
             document.getElementById("admin-panel-btn").style.display = "none";
             updateDisplay();
             alert("Signed out!");
@@ -456,7 +463,37 @@
                 coins = data.coins;
                 currentLevel = data.level;
                 isAdmin = data.is_administrator || false;
+                robotCount = data.robot_count || 0;
+                robotUpgradeLevel = data.robot_upgrade_level || 0;
                 updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
+
+                // Restore robot UI state based on loaded data
+                let isCheatsOn = document.getElementById("cheats-toggle").checked;
+                if (robotCount > 0 && isCheatsOn) {
+                    robotActive = true;
+                    document.getElementById("robot-container").style.display = "block";
+                    if (robotCount < 5) {
+                        document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
+                    } else {
+                        document.getElementById("buy-robot-btn").innerText = "Max Robots Reached";
+                        document.getElementById("buy-robot-btn").disabled = true;
+                        document.getElementById("upgrade-btn").style.display = "inline-block";
+                    }
+                }
+                if (robotUpgradeLevel > 0 && isCheatsOn) {
+                    robotUpgraded = true;
+                    document.getElementById("robot-img").innerText = "😈";
+                    document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
+                    document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/5) crushing...`;
+                    document.getElementById("upgrade-btn").style.display = "inline-block";
+                    let upgradeBtn = document.getElementById("upgrade-btn");
+                    if (robotUpgradeLevel < 5) {
+                        upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/5) (10 Coins)`;
+                    } else {
+                        upgradeBtn.innerText = "Max Upgrade Reached";
+                        upgradeBtn.disabled = true;
+                    }
+                }
             } else {
                 let username = currentUser.email ? currentUser.email.split('@')[0] : 'Unknown';
                 await supabase.from('player_data').insert([{ 
@@ -464,11 +501,15 @@
                     username: username,
                     coins: 0, 
                     level: 'Noob', 
-                    is_administrator: false 
+                    is_administrator: false,
+                    robot_count: 0,
+                    robot_upgrade_level: 0
                 }]);
                 coins = 0;
                 currentLevel = 'Noob';
                 isAdmin = false;
+                robotCount = 0;
+                robotUpgradeLevel = 0;
                 updatedAt = "Just now";
             }
 
@@ -486,7 +527,13 @@
             let now = new Date();
             let { error } = await supabase
                 .from('player_data')
-                .update({ coins: coins, level: currentLevel, updated_at: now })
+                .update({ 
+                    coins: coins, 
+                    level: currentLevel, 
+                    robot_count: robotCount,
+                    robot_upgrade_level: robotUpgradeLevel,
+                    updated_at: now 
+                })
                 .eq('user_id', currentUser.id);
             if (!error) {
                 updatedAt = now.toLocaleString();
@@ -507,7 +554,8 @@
                 clearInterval(challengeTimerInterval);
             }
             if (pageId === 'game-page') {
-                generateQuestion();}
+                generateQuestion();
+            }
             
             let pages = document.querySelectorAll('.page');
             pages.forEach(p => p.classList.remove('active'));
@@ -551,16 +599,14 @@
 
             if (isChecked) {
                 robotShopDiv.style.display = "block";
+                if (robotCount > 0) {
+                    robotActive = true;
+                    document.getElementById("robot-container").style.display = "block";
+                }
             } else {
                 robotShopDiv.style.display = "none";
                 robotActive = false;
                 robotUpgraded = false;
-                robotCount = 0;
-                robotUpgradeLevel = 0;
-                document.getElementById("buy-robot-btn").innerText = "Buy Robo-Solver (5 Coins)";
-                document.getElementById("buy-robot-btn").disabled = false;
-                document.getElementById("upgrade-btn").innerText = "Upgrade Robot (10 Coins)";
-                document.getElementById("upgrade-btn").disabled = false;
                 document.getElementById("robot-container").style.display = "none";
                 clearTimeout(robotTimer);
                 clearInterval(countdownTimer);
