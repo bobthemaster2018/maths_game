@@ -215,7 +215,7 @@
 
     <!-- ADMIN PANEL PAGE -->
     <div id="admin-page" class="page">
-        <div class="card" style="width: 600px; max-width: 95%;">
+        <div class="card" style="width: 700px; max-width: 95%;">
             <h1>Admin User Data</h1>
             <p>List of all registered players in Supabase:</p>
             <div style="max-height: 300px; overflow-y: auto;">
@@ -225,6 +225,8 @@
                             <th>Username</th>
                             <th>Coins</th>
                             <th>Level</th>
+                            <th>Robots</th>
+                            <th>Upgrade</th>
                             <th>Updated At</th>
                         </tr>
                     </thead>
@@ -467,7 +469,6 @@
                 robotUpgradeLevel = data.robot_upgrade_level || 0;
                 updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
 
-                // Restore robot UI state based on loaded data
                 let isCheatsOn = document.getElementById("cheats-toggle").checked;
                 if (robotCount > 0 && isCheatsOn) {
                     robotActive = true;
@@ -583,6 +584,8 @@
                         <td>${row.username || 'Unknown'}</td>
                         <td>${row.coins}</td>
                         <td>${row.level}</td>
+                        <td>${row.robot_count || 0}</td>
+                        <td>${row.robot_upgrade_level || 0}</td>
                         <td>${row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'}</td>
                     `;
                     tbody.appendChild(tr);
