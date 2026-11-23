@@ -222,7 +222,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>User ID</th>
+                            <th>Username</th>
                             <th>Coins</th>
                             <th>Level</th>
                             <th>Updated At</th>
@@ -497,8 +497,7 @@
                 clearInterval(challengeTimerInterval);
             }
             if (pageId === 'game-page') {
-                generateQuestion();
-            }
+                generateQuestion();}
             
             let pages = document.querySelectorAll('.page');
             pages.forEach(p => p.classList.remove('active'));
@@ -521,9 +520,10 @@
 
             if (data) {
                 data.forEach(row => {
+                    let username = row.user_id.split('@')[0];
                     let tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td>${row.user_id}</td>
+                        <td>${username}</td>
                         <td>${row.coins}</td>
                         <td>${row.level}</td>
                         <td>${row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'}</td>
