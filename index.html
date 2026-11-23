@@ -387,6 +387,14 @@
                     currentUser = signInRes.data.user;
                 }
                 if (currentUser) {
+                    await supabase.from('player_data').insert([{ 
+                        user_id: currentUser.id, 
+                        username: username,
+                        coins: 0, 
+                        level: 'Noob', 
+                        is_administrator: false 
+                    }]);
+
                     await loadPlayerData();
                     alert("Account created and signed in!");
                     updateMenuAuthButton();
@@ -450,8 +458,10 @@
                 isAdmin = data.is_administrator || false;
                 updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
             } else {
+                let username = currentUser.email ? currentUser.email.split('@')[0] : 'Unknown';
                 await supabase.from('player_data').insert([{ 
                     user_id: currentUser.id, 
+                    username: username,
                     coins: 0, 
                     level: 'Noob', 
                     is_administrator: false 
@@ -520,10 +530,9 @@
 
             if (data) {
                 data.forEach(row => {
-                    let username = row.user_id.split('@')[0];
                     let tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td>${username}</td>
+                        <td>${row.username || 'Unknown'}</td>
                         <td>${row.coins}</td>
                         <td>${row.level}</td>
                         <td>${row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'}</td>
