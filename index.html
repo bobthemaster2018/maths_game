@@ -213,6 +213,29 @@
         </div>
     </div>
 
+    <!-- WORLDS PAGE -->
+    <div id="worlds-page" class="page">
+        <div class="card">
+            <h1>Worlds Menu</h1>
+            <p>Select a world to teleport to:</p>
+            
+            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <h3>World 1</h3>
+                <p id="world-1-indicator">You're here</p>
+                <button id="world-1-teleport-btn" onclick="teleportWorld(1)" style="display:none; background-color: #4caf50; color: white;">Teleport</button>
+            </div>
+
+            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <h3>World 2 (Requires Wow Divine Level)</h3>
+                <p id="world-2-indicator">Teleport</p>
+                <button id="world-2-teleport-btn" onclick="teleportWorld(2)" style="background-color: #2196f3; color: white;">Teleport</button>
+            </div>
+
+            <br>
+            <button onclick="switchPage('game-page')">Back to Game</button>
+        </div>
+    </div>
+
     <!-- ADMIN PANEL PAGE -->
     <div id="admin-page" class="page">
         <div class="card" style="width: 700px; max-width: 95%;">
@@ -244,6 +267,7 @@
     <div id="game-page" class="page">
         <div class="card">
             <h1>Math Money Game</h1>
+            <p>Current World: <span id="current-world-display">1</span></p>
             <p>Level: <span id="level">Noob</span></p>
             <p>Coins: <span id="coins">0</span></p>
             <p>Last Updated: <span id="updated-at">Never</span></p>
@@ -275,10 +299,12 @@
             <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button><br>
             <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
             <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
-            <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button>
+            <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button><br>
+            <button onclick="buyLevel('God Noob', 100000000000000000)">Buy God Noob Level</button><br>
+            <button onclick="buyLevel('God Pro', 1000000000000000000)">Buy God Pro Level</button>
             
             <br><br>
-            <button onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
+            <button id="secret-menu-btn" onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
 
             <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
                 <h4>Secret Level & Coin Changer</h4>
@@ -292,6 +318,8 @@
                     <option value="Zombie Hacker">Zombie Hacker</option>
                     <option value="Zombie Divine">Zombie Divine</option>
                     <option value="Wow Divine">Wow Divine</option>
+                    <option value="God Noob">God Noob</option>
+                    <option value="God Pro">God Pro</option>
                 </select>
                 <br>
                 <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
@@ -302,13 +330,15 @@
                 <br><br>
                 <button onclick="spawnSecretRobot()" style="padding: 5px 10px; font-size: 14px; background-color: #e91e63; color: white;">Spawn Secret Robot Now</button>
                 <br><br>
+                <button onclick="openWorldsMenu()" style="padding: 5px 10px; font-size: 14px; background-color: #9c27b0; color: white;">Worlds</button>
+                <br><br>
                 <button id="admin-panel-btn" onclick="openAdminPanel()" style="padding: 5px 10px; font-size: 14px; background-color: #ff9800; color: white; display: none;">Open Admin Panel</button>
             </div>
 
             <br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
             <br>
-            <center>Version 21</center>
+            <center>Version 22</center>
         </div>
     </div>
 
@@ -330,6 +360,7 @@
         let coins = 0;
         let correctCount = 0;
         let currentLevel = "Noob";
+        let currentWorld = 1;
         let updatedAt = "Never";
         let isAdmin = false;
         let num1, num2, correctAnswer;
@@ -438,6 +469,7 @@
             currentUser = null;
             coins = 0;
             currentLevel = "Noob";
+            currentWorld = 1;
             updatedAt = "Never";
             isAdmin = false;
             correctCount = 0;
@@ -470,26 +502,28 @@
                 updatedAt = data.updated_at ? new Date(data.updated_at).toLocaleString() : "Just now";
 
                 let isCheatsOn = document.getElementById("cheats-toggle").checked;
+                let maxRobots = currentWorld === 2 ? 50 : 5;
                 if (robotCount > 0 && isCheatsOn) {
                     robotActive = true;
                     document.getElementById("robot-container").style.display = "block";
-                    if (robotCount < 5) {
-                        document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
+                    if (robotCount < maxRobots) {
+                        document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/${maxRobots}) (5 Coins)`;
                     } else {
                         document.getElementById("buy-robot-btn").innerText = "Max Robots Reached";
                         document.getElementById("buy-robot-btn").disabled = true;
                         document.getElementById("upgrade-btn").style.display = "inline-block";
                     }
                 }
+                let maxUpgrades = currentWorld === 2 ? 50 : 5;
                 if (robotUpgradeLevel > 0 && isCheatsOn) {
                     robotUpgraded = true;
                     document.getElementById("robot-img").innerText = "😈";
                     document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
-                    document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/5) crushing...`;
+                    document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/${maxUpgrades}) crushing...`;
                     document.getElementById("upgrade-btn").style.display = "inline-block";
                     let upgradeBtn = document.getElementById("upgrade-btn");
-                    if (robotUpgradeLevel < 5) {
-                        upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/5) (10 Coins)`;
+                    if (robotUpgradeLevel < maxUpgrades) {
+                        upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/${maxUpgrades}) (10 Coins)`;
                     } else {
                         upgradeBtn.innerText = "Max Upgrade Reached";
                         upgradeBtn.disabled = true;
@@ -545,6 +579,7 @@
         function updateDisplay() {
             document.getElementById("coins").innerText = coins;
             document.getElementById("level").innerText = currentLevel;
+            document.getElementById("current-world-display").innerText = currentWorld;
             document.getElementById("updated-at").innerText = updatedAt;
             document.getElementById("correctCount").innerText = correctCount;
             document.getElementById("targetCount").innerText = getTargetCount();
@@ -617,7 +652,7 @@
         }
 
         function getTargetCount() {
-            if (currentLevel === "Lion Hacker" || currentLevel === "Zombie Hacker" || currentLevel === "Zombie Divine" || currentLevel === "Wow Divine") {
+            if (currentLevel === "Lion Hacker" || currentLevel === "Zombie Hacker" || currentLevel === "Zombie Divine" || currentLevel === "Wow Divine" || currentLevel === "God Noob" || currentLevel === "God Pro") {
                 return 10;
             }
             return 2;
@@ -701,7 +736,8 @@
         }
 
         function buyRobot() {
-            if (robotCount >= 5) {
+            let maxRobots = currentWorld === 2 ? 50 : 5;
+            if (robotCount >= maxRobots) {
                 alert("Max Robots Reached!");
                 return;
             }
@@ -715,15 +751,15 @@
                 robotActive = true;
                 document.getElementById("robot-container").style.display = "block";
                 
-                if (robotCount < 5) {
-                    document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/5) (5 Coins)`;
+                if (robotCount < maxRobots) {
+                    document.getElementById("buy-robot-btn").innerText = `Buy Robo-Solver (${robotCount}/${maxRobots}) (5 Coins)`;
                 } else {
                     document.getElementById("buy-robot-btn").innerText = "Max Robots Reached";
                     document.getElementById("buy-robot-btn").disabled = true;
                     document.getElementById("upgrade-btn").style.display = "inline-block";
                 }
 
-                alert("Beep boop! Robo-Solver activated! (" + robotCount + "/5)");
+                alert("Beep boop! Robo-Solver activated! (" + robotCount + "/" + maxRobots + ")");
                 startRobotCycle();
             } else {
                 alert("Not enough coins for the robot!");
@@ -731,7 +767,8 @@
         }
 
         function buyUpgradedRobot() {
-            if (robotUpgradeLevel >= 5) {
+            let maxUpgrades = currentWorld === 2 ? 50 : 5;
+            if (robotUpgradeLevel >= maxUpgrades) {
                 alert("Max Upgrade Reached!");
                 return;
             }
@@ -745,17 +782,17 @@
                 robotUpgraded = true;
                 document.getElementById("robot-img").innerText = "😈";
                 document.getElementById("robot-img").style.backgroundColor = "#b71c1c";
-                document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/5) crushing...`;
+                document.getElementById("robot-status").innerText = `DESTRUCTION BOT (Lvl ${robotUpgradeLevel}/${maxUpgrades}) crushing...`;
                 
                 let upgradeBtn = document.getElementById("upgrade-btn");
-                if (robotUpgradeLevel < 5) {
-                    upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/5) (10 Coins)`;
+                if (robotUpgradeLevel < maxUpgrades) {
+                    upgradeBtn.innerText = `Upgrade Robot (${robotUpgradeLevel}/${maxUpgrades}) (10 Coins)`;
                 } else {
                     upgradeBtn.innerText = "Max Upgrade Reached";
                     upgradeBtn.disabled = true;
                 }
 
-                alert(`ROBO UPGRADED! Level ${robotUpgradeLevel}/5`);
+                alert(`ROBO UPGRADED! Level ${robotUpgradeLevel}/${maxUpgrades}`);
                 startRobotCycle();
             } else {
                 alert("Not enough coins to upgrade the robot!");
@@ -766,7 +803,8 @@
             clearTimeout(robotTimer);
             clearInterval(countdownTimer);
 
-            let timeLeft = robotUpgraded ? (6 - robotUpgradeLevel) : 5;
+            let maxUpgrades = currentWorld === 2 ? 50 : 5;
+            let timeLeft = robotUpgraded ? (maxUpgrades + 1 - robotUpgradeLevel) : 5;
             if (timeLeft < 1) timeLeft = 1;
             document.getElementById("countdown").innerText = timeLeft;
 
@@ -778,8 +816,8 @@
                 }
             }, 1000);
 
-            let speed = robotUpgraded ? (2000 - (robotUpgradeLevel * 200)) : 5000;
-            if (speed < 500) speed = 500;
+            let speed = robotUpgraded ? (2000 - (robotUpgradeLevel * 40)) : 5000;
+            if (speed < 200) speed = 200;
 
             robotTimer = setTimeout(() => {
                 correctCount += robotUpgraded ? (1 + robotUpgradeLevel) : 1;
@@ -803,6 +841,8 @@
             else if (currentLevel === "Zombie Hacker") coins += 100000000000;
             else if (currentLevel === "Zombie Divine") coins += 1000000000000;
             else if (currentLevel === "Wow Divine") coins += 100000000000000;
+            else if (currentLevel === "God Noob") coins += 10000000000000000;
+            else if (currentLevel === "God Pro") coins += 10000000000000000;
             updateDisplay();
             savePlayerData();
         }
@@ -827,6 +867,66 @@
             } else if (pin !== null) {
                 alert("Incorrect PIN!");
             }
+        }
+
+        function openWorldsMenu() {
+            document.getElementById("secret-menu").style.display = "none";
+            updateWorldsUI();
+            switchPage('worlds-page');
+        }
+
+        function updateWorldsUI() {
+            if (currentWorld === 1) {
+                document.getElementById("world-1-indicator").innerText = "You're here";
+                document.getElementById("world-1-teleport-btn").style.display = "none";
+                
+                document.getElementById("world-2-indicator").innerText = "Teleport";
+                document.getElementById("world-2-teleport-btn").style.display = "inline-block";
+
+                // Show secret menu option in World 1
+                document.getElementById("secret-menu-btn").style.display = "inline-block";
+                
+                // Allow selecting World 2 levels from World 1's secret menu
+                document.getElementById("secret-level-select").innerHTML = `
+                    <option value="Noob">Noob</option>
+                    <option value="Pro">Pro</option>
+                    <option value="God">God</option>
+                    <option value="Hacker">Hacker</option>
+                    <option value="Rat Hacker">Rat Hacker</option>
+                    <option value="Lion Hacker">Lion Hacker</option>
+                    <option value="Zombie Hacker">Zombie Hacker</option>
+                    <option value="Zombie Divine">Zombie Divine</option>
+                    <option value="Wow Divine">Wow Divine</option>
+                    <option value="God Noob">God Noob</option>
+                    <option value="God Pro">God Pro</option>
+                `;
+            } else {
+                document.getElementById("world-2-indicator").innerText = "You're here";
+                document.getElementById("world-2-teleport-btn").style.display = "none";
+                
+                document.getElementById("world-1-indicator").innerText = "Teleport";
+                document.getElementById("world-1-teleport-btn").style.display = "inline-block";
+
+                // Hide secret menu button in World 2
+                document.getElementById("secret-menu-btn").style.display = "none";
+                document.getElementById("secret-menu").style.display = "none";
+            }
+        }
+
+        function teleportWorld(targetWorld) {
+            if (targetWorld === 2) {
+                if (currentLevel !== "Wow Divine" && currentLevel !== "God Noob" && currentLevel !== "God Pro" && !isAdmin) {
+                    alert("You need the Wow Divine level to enter World 2!");
+                    return;
+                }
+                currentWorld = 2;
+                alert("Welcome to World 2!");
+            } else {
+                currentWorld = 1;
+                alert("Welcome back to World 1!");
+            }
+            updateWorldsUI();
+            switchPage('game-page');
         }
 
         function applySecretLevel() {
@@ -1031,6 +1131,9 @@
         window.checkAnswer = checkAnswer;
         window.buyLevel = buyLevel;
         window.openSecretMenu = openSecretMenu;
+        window.openWorldsMenu = openWorldsMenu;
+        window.updateWorldsUI = updateWorldsUI;
+        window.teleportWorld = teleportWorld;
         window.applySecretLevel = applySecretLevel;
         window.applySecretCoins = applySecretCoins;
         window.spawnSecretRobot = spawnSecretRobot;
