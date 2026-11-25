@@ -299,27 +299,20 @@
             <button onclick="buyLevel('Lion Hacker', 1000000000)">Buy Lion Hacker Level (1,000,000,000 Coins)</button><br>
             <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
             <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
-            <button onclick="buyLevel('Wow Divine', 100000000000000)">Buy Wow Divine Level (100 Trillion Coins)</button><br>
-            <button onclick="buyLevel('God Noob', 100000000000000000)">Buy God Noob Level</button><br>
-            <button onclick="buyLevel('God Pro', 1000000000000000000)">Buy God Pro Level</button>
+            <button onclick="buyLevel('Wow Divine', 100000000000000)" id="wow-divine-btn">Buy Wow Divine Level (100 Trillion Coins)</button><br>
+            <button onclick="buyLevel('God Noob', 100000000000000000)" class="world2-level" style="display:none;">Buy God Noob Level</button><br>
+            <button onclick="buyLevel('God Pro', 1000000000000000000)" class="world2-level" style="display:none;">Buy God Pro Level</button>
             
+            <br><br>
+            <button onclick="openWorldsMenu()" style="background-color: #9c27b0; color: white;">Worlds</button>
+
             <br><br>
             <button id="secret-menu-btn" onclick="openSecretMenu()" style="background-color: #cfd8dc; font-size: 14px;">Secret Level Menu</button>
 
             <div id="secret-menu" style="display:none; margin-top: 15px; border-top: 2px dashed #b0bec5; padding-top: 10px;">
                 <h4>Secret Level & Coin Changer</h4>
                 <select id="secret-level-select" style="padding: 5px; font-size: 14px;">
-                    <option value="Noob">Noob</option>
-                    <option value="Pro">Pro</option>
-                    <option value="God">God</option>
-                    <option value="Hacker">Hacker</option>
-                    <option value="Rat Hacker">Rat Hacker</option>
-                    <option value="Lion Hacker">Lion Hacker</option>
-                    <option value="Zombie Hacker">Zombie Hacker</option>
-                    <option value="Zombie Divine">Zombie Divine</option>
-                    <option value="Wow Divine">Wow Divine</option>
-                    <option value="God Noob">God Noob</option>
-                    <option value="God Pro">God Pro</option>
+                    <!-- Filled dynamically by JS based on world -->
                 </select>
                 <br>
                 <button onclick="applySecretLevel()" style="padding: 5px 10px; font-size: 14px; margin-top: 5px;">Change Level</button>
@@ -330,15 +323,13 @@
                 <br><br>
                 <button onclick="spawnSecretRobot()" style="padding: 5px 10px; font-size: 14px; background-color: #e91e63; color: white;">Spawn Secret Robot Now</button>
                 <br><br>
-                <button onclick="openWorldsMenu()" style="padding: 5px 10px; font-size: 14px; background-color: #9c27b0; color: white;">Worlds</button>
-                <br><br>
                 <button id="admin-panel-btn" onclick="openAdminPanel()" style="padding: 5px 10px; font-size: 14px; background-color: #ff9800; color: white; display: none;">Open Admin Panel</button>
             </div>
 
             <br><br>
             <button onclick="switchPage('menu-page')">Back to Menu</button>
             <br>
-            <center>Version 22</center>
+            <center>Version 23</center>
         </div>
     </div>
 
@@ -554,6 +545,7 @@
                 document.getElementById("admin-panel-btn").style.display = "none";
             }
 
+            updateWorldsUI();
             updateDisplay();
         }
 
@@ -738,7 +730,7 @@
         function buyRobot() {
             let maxRobots = currentWorld === 2 ? 50 : 5;
             if (robotCount >= maxRobots) {
-                alert("Max Robots Reached!");
+                alert("Max Robots Reached for this world!");
                 return;
             }
 
@@ -769,7 +761,7 @@
         function buyUpgradedRobot() {
             let maxUpgrades = currentWorld === 2 ? 50 : 5;
             if (robotUpgradeLevel >= maxUpgrades) {
-                alert("Max Upgrade Reached!");
+                alert("Max Upgrade Reached for this world!");
                 return;
             }
 
@@ -854,6 +846,7 @@
                 correctCount = 0;
                 updateDisplay();
                 savePlayerData();
+                updateWorldsUI();
                 alert("You leveled up to " + levelName + "!");
             } else {
                 alert("Not enough coins!");
@@ -876,18 +869,28 @@
         }
 
         function updateWorldsUI() {
+            let levelSelect = document.getElementById("secret-level-select");
+            let world2Btn = document.getElementById("world-2-teleport-btn");
+            let world2Indicator = document.getElementById("world-2-indicator");
+
+            let hasUnlockedWorld2 = (currentLevel === "Wow Divine" || currentLevel === "God Noob" || currentLevel === "God Pro" || isAdmin);
+
+            if (!hasUnlockedWorld2) {
+                world2Indicator.innerText = "🔒 Locked (Requires Wow Divine)";
+                world2Btn.style.display = "none";
+            } else {
+                world2Indicator.innerText = "Teleport";
+                world2Btn.style.display = "inline-block";
+            }
+
             if (currentWorld === 1) {
                 document.getElementById("world-1-indicator").innerText = "You're here";
                 document.getElementById("world-1-teleport-btn").style.display = "none";
-                
-                document.getElementById("world-2-indicator").innerText = "Teleport";
-                document.getElementById("world-2-teleport-btn").style.display = "inline-block";
 
-                // Show secret menu option in World 1
-                document.getElementById("secret-menu-btn").style.display = "inline-block";
-                
-                // Allow selecting World 2 levels from World 1's secret menu
-                document.getElementById("secret-level-select").innerHTML = `
+                document.querySelectorAll('.world2-level').forEach(el => el.style.display = 'none');
+                document.getElementById("wow-divine-btn").style.display = "inline-block";
+
+                levelSelect.innerHTML = `
                     <option value="Noob">Noob</option>
                     <option value="Pro">Pro</option>
                     <option value="God">God</option>
@@ -897,25 +900,25 @@
                     <option value="Zombie Hacker">Zombie Hacker</option>
                     <option value="Zombie Divine">Zombie Divine</option>
                     <option value="Wow Divine">Wow Divine</option>
-                    <option value="God Noob">God Noob</option>
-                    <option value="God Pro">God Pro</option>
                 `;
             } else {
-                document.getElementById("world-2-indicator").innerText = "You're here";
-                document.getElementById("world-2-teleport-btn").style.display = "none";
-                
                 document.getElementById("world-1-indicator").innerText = "Teleport";
                 document.getElementById("world-1-teleport-btn").style.display = "inline-block";
 
-                // Hide secret menu button in World 2
-                document.getElementById("secret-menu-btn").style.display = "none";
-                document.getElementById("secret-menu").style.display = "none";
+                document.querySelectorAll('.world2-level').forEach(el => el.style.display = 'inline-block');
+                document.getElementById("wow-divine-btn").style.display = "none";
+
+                levelSelect.innerHTML = `
+                    <option value="God Noob">God Noob</option>
+                    <option value="God Pro">God Pro</option>
+                `;
             }
         }
 
         function teleportWorld(targetWorld) {
             if (targetWorld === 2) {
-                if (currentLevel !== "Wow Divine" && currentLevel !== "God Noob" && currentLevel !== "God Pro" && !isAdmin) {
+                let hasUnlockedWorld2 = (currentLevel === "Wow Divine" || currentLevel === "God Noob" || currentLevel === "God Pro" || isAdmin);
+                if (!hasUnlockedWorld2) {
                     alert("You need the Wow Divine level to enter World 2!");
                     return;
                 }
@@ -935,6 +938,7 @@
             correctCount = 0;
             updateDisplay();
             savePlayerData();
+            updateWorldsUI();
             alert("Level changed to " + currentLevel + "!");
             document.getElementById("secret-menu").style.display = "none";
         }
@@ -1120,7 +1124,6 @@
             generateChallengeQuestion();
         }
 
-        // Expose functions to window
         window.switchPage = switchPage;
         window.signUp = signUp;
         window.signIn = signIn;
