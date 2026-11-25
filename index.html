@@ -300,8 +300,8 @@
             <button onclick="buyLevel('Zombie Hacker', 100000000000)">Buy Zombie Hacker Level (100,000,000,000 Coins)</button><br>
             <button onclick="buyLevel('Zombie Divine', 1000000000000)">Buy Zombie Divine Level (1 Trillion Coins)</button><br>
             <button onclick="buyLevel('Wow Divine', 100000000000000)" id="wow-divine-btn">Buy Wow Divine Level (100 Trillion Coins)</button><br>
-            <button onclick="buyLevel('God Noob', 100000000000000000)" class="world2-level" style="display:none;">Buy God Noob Level</button><br>
-            <button onclick="buyLevel('God Pro', 1000000000000000000)" class="world2-level" style="display:none;">Buy God Pro Level</button>
+            <button onclick="buyLevel('God Noob', 100000000000000000)" class="world2-level" style="display:none;">Buy God Noob Level (Cost: 100,000,000,000,000,000 Coins)</button><br>
+            <button onclick="buyLevel('God Pro', 1000000000000000000)" class="world2-level" style="display:none;">Buy God Pro Level (Cost: 1,000,000,000,000,000,000 Coins)</button>
             
             <br><br>
             <button onclick="openWorldsMenu()" style="background-color: #9c27b0; color: white;">Worlds</button>
@@ -834,7 +834,7 @@
             else if (currentLevel === "Zombie Divine") coins += 1000000000000;
             else if (currentLevel === "Wow Divine") coins += 100000000000000;
             else if (currentLevel === "God Noob") coins += 10000000000000000;
-            else if (currentLevel === "God Pro") coins += 10000000000000000;
+            else if (currentLevel === "God Pro") coins += 10000000000000000000;
             updateDisplay();
             savePlayerData();
         }
